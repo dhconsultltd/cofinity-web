@@ -1,25 +1,44 @@
-import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import Button from "./components/Button";
+import { Card } from "./components/Card";
+import { Input } from "./components/Input";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <>
+      <div className="flex flex-col items-center gap-4 min-h-screen justify-center bg-red-500 ">
+        <Button>Default</Button>
+        <button className="bg-green-400 p-6"> hello there</button>
+        <Button variant="outline" className="bg-green-800">
+          Outline
+        </Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="destructive">Delete</Button>
+        <Button variant="link">Learn more</Button>
+        <Button isLoading>Loading...</Button>
+        <Button size="lg" className="w-40">
+          Large
+        </Button>
+      </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <Card
+          title="User Details"
+          description="Please fill in your basic information"
+          footer={
+            <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+              Submit
+            </button>
+          }
+          className="max-w-sm w-full"
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <div className="space-y-3">
+            <Input label="Full Name" placeholder="John Doe" />
+            <Input label="Email" placeholder="you@example.com" type="email" />
+            <Input label="Password" placeholder="••••••••" type="password" />
+          </div>
+        </Card>
+      </div>
+    </>
   );
 }
 
