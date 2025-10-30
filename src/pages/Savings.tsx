@@ -39,6 +39,7 @@ const Savings = () => {
     { name: "Transactions", icon: <Receipt size={18} /> },
     { name: "KYC", icon: <Shield size={18} /> },
     { name: "Report", icon: <FileText size={18} /> },
+    { name: "Users", icon: <Users size={18} /> },
     { name: "Settings", icon: <Settings size={18} /> },
   ];
 
@@ -172,7 +173,7 @@ const Savings = () => {
         </div>
 
         <button className="mt-6 px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 hover:bg-gray-800 transition font-semibold">
-          Manage Sub Admin
+          Log out
         </button>
       </aside>
 

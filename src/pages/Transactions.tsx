@@ -44,6 +44,7 @@ const Transactions = () => {
     { name: "Transactions", icon: <Receipt size={18} /> },
     { name: "KYC", icon: <Shield size={18} /> },
     { name: "Report", icon: <FileText size={18} /> },
+    { name: "Users", icon: <Users size={18} /> },
     { name: "Settings", icon: <Settings size={18} /> },
   ];
 
@@ -133,7 +134,7 @@ const Transactions = () => {
       </div>
 
       {/* Sidebar */}
-      <aside
+      {/* <aside
         className={`bg-black text-white w-64 p-6 flex flex-col justify-between fixed lg:static inset-y-0 left-0 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 transition-transform duration-300 ease-in-out z-40`}
@@ -169,7 +170,7 @@ const Transactions = () => {
         </div>
 
         <button className="mt-6 px-4 py-2 rounded-lg bg-gray-900 border border-gray-800 hover:bg-gray-800 transition font-semibold">
-          Manage Sub Admin
+          Log out
         </button>
       </aside>
 
@@ -178,7 +179,7 @@ const Transactions = () => {
           onClick={() => setSidebarOpen(false)}
           className="fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden z-30"
         />
-      )}
+      )} */}
 
       {/* Main Content */}
       <main className="p-6 overflow-y-auto h-screen lg:h-auto">
