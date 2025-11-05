@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Users, Landmark, PiggyBank, IdCard, Search } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Member = () => {
   const members = [
@@ -122,9 +123,12 @@ const Member = () => {
           />
           <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
         </div>
-        <button className="bg-black text-white px-4 py-2 mt-4 md:mt-0 rounded-lg hover:bg-gray-900">
+        <Link
+          to="/members/AddNewMembers"
+          className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-900 transition"
+        >
           + Add New Member
-        </button>
+        </Link>
       </div>
 
       {/* Table */}

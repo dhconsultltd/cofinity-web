@@ -8,6 +8,7 @@ import {
   Settings,
   Download,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Loan {
   name: string;
@@ -192,9 +193,12 @@ const Loans = () => {
         </div>
 
         <div className="w-full flex mt-4 md:mt-0 md:justify-end">
-          <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-900">
+          <Link
+            to="/loans/LoanApplicationForm"
+            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-900"
+          >
             New Loan Application
-          </button>
+          </Link>
         </div>
       </div>
 
