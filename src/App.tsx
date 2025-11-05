@@ -21,6 +21,12 @@ function App() {
         return "Members Overview";
       case "/loans":
         return "Loans Management";
+      case "/savings":
+        return "Savings Management";
+      case "/shares":
+        return "Shares Management";
+      case "/transactions":
+        return "Transactions";
       case "/settings":
         return "System Settings";
       case "/members/view":
