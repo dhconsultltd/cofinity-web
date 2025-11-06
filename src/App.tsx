@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Layoutt from "./components/Layoutt";
 import Dashboard from "./pages/Dashboard";
 import Member from "./pages/Member";
@@ -9,13 +9,16 @@ import Transactions from "./pages/Transactions";
 import Kyc from "./pages/Kyc";
 import Report from "./pages/Report";
 import Users from "./pages/Users";
-
 import Settings from "./pages/Settings";
+
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import CooperativeSelection from "./pages/CooperativeSelection";
+import CreateCooperative from "./pages/CreateCooperative";
 
 function App() {
   const location = useLocation();
 
-  // Dynamic titles per page
   const getNavbarTitle = () => {
     switch (location.pathname) {
       case "/":
@@ -34,9 +37,9 @@ function App() {
       case "/kyc":
         return "KYC";
       case "/report":
-        return "Report";
+        return "Reports";
       case "/user":
-        return "Users";
+        return "Users Management";
       case "/settings":
         return "System Settings";
       default:
@@ -44,22 +47,45 @@ function App() {
     }
   };
 
-  return (
-    <Layoutt navbarTitle={getNavbarTitle()}>
-      <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/members" element={<Member />} />
-        <Route path="/loans" element={<Loans />} />
-        <Route path="/savings" element={<Savings />} />
-        <Route path="/shares" element={<Shares />} />
-        <Route path="/transactions" element={<Transactions />} />
-        <Route path="/kyc" element={<Kyc />} />
-        <Route path="/report" element={<Report />} />
-        <Route path="/user" element={<Users />} />
+  const isAuthPage = [
+    "/login",
+    "/signup",
+    "/cooperative-selection",
+    "/create-cooperative",
+  ].includes(location.pathname);
 
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
-    </Layoutt>
+  return (
+    <>
+      {isAuthPage ? (
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/cooperative-selection"
+            element={<CooperativeSelection />}
+          />
+          <Route path="/create-cooperative" element={<CreateCooperative />} />
+        </Routes>
+      ) : (
+        <Layoutt navbarTitle={getNavbarTitle()}>
+          <Routes>
+            {/* Dashboard Routes */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/members" element={<Member />} />
+            <Route path="/loans" element={<Loans />} />
+            <Route path="/savings" element={<Savings />} />
+            <Route path="/shares" element={<Shares />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/kyc" element={<Kyc />} />
+            <Route path="/report" element={<Report />} />
+            <Route path="/user" element={<Users />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/dashboard" />} />
+          </Routes>
+        </Layoutt>
+      )}
+    </>
   );
 }
 
