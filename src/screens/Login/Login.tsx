@@ -42,31 +42,52 @@ const Login: React.FC = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  // const onSubmit = async (data: LoginFormData) => {
+  //   setIsLoading(true);
+
+  //   try {
+  //     // 1. Fetch CSRF cookie (critical for Sanctum)
+  //     //  const res =  await fetchCsrfToken();
+  //     //  console.log("CSRF token fetched:", res);
+
+  //     // 2. Call your auth context login
+  //     await login(data.email, data.password);
+
+  //     // 3. Success
+  //     toast.success("Welcome back!", {
+  //       description: "Redirecting to your dashboard...",
+  //     });
+
+  //     navigate("/verify-login");
+  //   } catch (error: any) {
+  //     const message =
+  //       error.response?.data?.message ||
+  //       error.message ||
+  //       "Invalid credentials. Please try again.";
+
+  //     toast.error("Login failed", {
+  //       description: message,
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
 
     try {
-      // 1. Fetch CSRF cookie (critical for Sanctum)
-      //  const res =  await fetchCsrfToken();
-      //  console.log("CSRF token fetched:", res);
-
-      // 2. Call your auth context login
       await login(data.email, data.password);
 
-      // 3. Success
-      toast.success("Welcome back!", {
-        description: "Redirecting to your dashboard...",
-      });
+      // Save email for VerifyLogin page
+      localStorage.setItem("verifyEmail", data.email);
 
-      navigate("/dashboard");
+      toast.success("Login successful, verify email");
+
+      navigate("/verify-login"); // <-- redirect here
     } catch (error: any) {
-      const message =
-        error.response?.data?.message ||
-        error.message ||
-        "Invalid credentials. Please try again.";
-
       toast.error("Login failed", {
-        description: message,
+        description: error.response?.data?.message || "Invalid credentials",
       });
     } finally {
       setIsLoading(false);
@@ -77,12 +98,15 @@ const Login: React.FC = () => {
     toast.info("Google login coming soon!");
   };
 
-  // const handleForgotPassword = () => {
-  //   toast.info("Password reset link will be sent to your email soon.");
-  // };
-
   const handleSignup = () => {
     navigate("/signup");
+  };
+  const [email, setEmail] = useState("");
+
+  const handleVerifyLogin = () => {
+    if (!email) return; // prevent redirect if email input is empty
+
+    navigate("/verify-login"); // navigate to next page
   };
 
   return (

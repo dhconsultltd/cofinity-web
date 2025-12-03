@@ -12,6 +12,7 @@ import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 
 import Login from "./screens/Login/Login";
+import VerifyLogin from "./screens/Login/VerifyLogin";
 import ForgotPassword from "./screens/Login/ForgotPassword";
 import Signup from "./screens/Register/Signup";
 
@@ -73,13 +74,16 @@ function App() {
 
   const isAuthPage = [
     "/login",
+
     "/forgot-password",
     "/signup",
     "/verify-email",
-    "/cooperative-selection",
-    "/create-cooperative",
-    "/choose-plan",
   ].includes(location.pathname);
+
+  //  "/verify-login",
+  //   "/cooperative-selection",
+  //   "/create-cooperative",
+  //   "/choose-plan",
 
   return (
     <>
@@ -89,15 +93,11 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
+
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route
-              path="/cooperative-selection"
-              element={<CooperativeSelection />}
-            />
-            <Route path="/create-cooperative" element={<CreateCooperative />} />
-            <Route path="/choose-plan" element={<ChoosePlan />} />
+
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         </>
@@ -116,6 +116,16 @@ function App() {
             <Route path="/user" element={<Users />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/upgrade" element={<UpgradePlan />} />
+
+            <Route path="/verify-login" element={<VerifyLogin />} />
+
+            <Route
+              path="/cooperative-selection"
+              element={<CooperativeSelection />}
+            />
+            <Route path="/create-cooperative" element={<CreateCooperative />} />
+            <Route path="/choose-plan" element={<ChoosePlan />} />
+
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Routes>
         </Layout>
