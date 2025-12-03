@@ -12,8 +12,8 @@ import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 
 import Login from "./screens/Login/Login";
+import ForgotPassword from "./screens/Login/ForgotPassword";
 import Signup from "./screens/Register/Signup";
-
 
 import CooperativeSelection from "./pages/CooperativeSelection";
 import CreateCooperative from "./pages/CreateCooperative";
@@ -25,7 +25,6 @@ import Layout from "./screens/protected/layout";
 
 function App() {
   const location = useLocation();
-
 
   const getNavbarTitle = () => {
     const titles: Record<string, string> = {
@@ -74,6 +73,7 @@ function App() {
 
   const isAuthPage = [
     "/login",
+    "/forgot-password",
     "/signup",
     "/verify-email",
     "/cooperative-selection",
@@ -85,10 +85,11 @@ function App() {
     <>
       {isAuthPage ? (
         <>
-  <Toaster position="top-center" richColors />
-            <Routes>
+          <Toaster position="top-center" richColors />
+          <Routes>
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route

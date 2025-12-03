@@ -1,21 +1,24 @@
 import React, { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
- 
 
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/Card";
-import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { Label } from "@/components/ui/label";
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchCsrfToken } from "@/lib/sanctum";
-
-
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -24,13 +27,10 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-
-
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
-
- const { login } = useAuth();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -47,8 +47,8 @@ const Login: React.FC = () => {
 
     try {
       // 1. Fetch CSRF cookie (critical for Sanctum)
-    //  const res =  await fetchCsrfToken();
-    //  console.log("CSRF token fetched:", res);
+      //  const res =  await fetchCsrfToken();
+      //  console.log("CSRF token fetched:", res);
 
       // 2. Call your auth context login
       await login(data.email, data.password);
@@ -77,17 +77,15 @@ const Login: React.FC = () => {
     toast.info("Google login coming soon!");
   };
 
-  const handleForgotPassword = () => {
-    toast.info("Password reset link will be sent to your email soon.");
-  };
+  // const handleForgotPassword = () => {
+  //   toast.info("Password reset link will be sent to your email soon.");
+  // };
 
   const handleSignup = () => {
     navigate("/signup");
   };
 
-
-
-return (
+  return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/3 relative overflow-hidden bg-black">
@@ -106,22 +104,29 @@ return (
             <h1 className="text-5xl font-bold mb-4 tracking-tight">Cofinity</h1>
             <div className="w-20 h-1 bg-white rounded-full mb-6"></div>
             <p className="text-xl text-neutral-300 leading-relaxed max-w-md">
-              Empowering cooperatives with modern tools for seamless management and growth.
+              Empowering cooperatives with modern tools for seamless management
+              and growth.
             </p>
           </div>
 
           <div className="space-y-4 mt-12">
             <div className="flex items-start gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-white mt-2"></div>
-              <p className="text-neutral-400">Multi-tenant architecture for complete data isolation</p>
+              <p className="text-neutral-400">
+                Multi-tenant architecture for complete data isolation
+              </p>
             </div>
             <div className="flex items-start gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-white mt-2"></div>
-              <p className="text-neutral-400">Secure payment processing and member management</p>
+              <p className="text-neutral-400">
+                Secure payment processing and member management
+              </p>
             </div>
             <div className="flex items-start gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-white mt-2"></div>
-              <p className="text-neutral-400">Real-time SMS alerts and notifications</p>
+              <p className="text-neutral-400">
+                Real-time SMS alerts and notifications
+              </p>
             </div>
           </div>
         </div>
@@ -160,7 +165,9 @@ return (
                       {...register("email")}
                     />
                     {errors.email && (
-                      <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.email.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -183,11 +190,17 @@ return (
                       className="absolute right-3 top-3.5 text-neutral-400 hover:text-neutral-600"
                       disabled={isLoading}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.password.message}
+                    </p>
                   )}
                 </div>
 
@@ -196,7 +209,7 @@ return (
                     type="button"
                     variant="link"
                     className="px-0 font-normal text-sm"
-                    onClick={handleForgotPassword}
+                    onClick={() => navigate("/forgot-password")}
                     disabled={isLoading}
                   >
                     Forgot password?
@@ -265,9 +278,13 @@ return (
 
           <p className="text-center text-xs text-neutral-500 mt-6">
             By signing in, you agree to our{" "}
-            <button className="underline hover:text-black">Terms of Service</button>
-            {" "}and{" "}
-            <button className="underline hover:text-black">Privacy Policy</button>
+            <button className="underline hover:text-black">
+              Terms of Service
+            </button>{" "}
+            and{" "}
+            <button className="underline hover:text-black">
+              Privacy Policy
+            </button>
           </p>
         </div>
       </div>
