@@ -16,16 +16,16 @@ import VerifyLogin from "./screens/Login/VerifyLogin";
 import ForgotPassword from "./screens/Login/ForgotPassword";
 import Signup from "./screens/Register/Signup";
 
-import CooperativeSelection from "./pages/CooperativeSelection";
-// import CreateCooperative from "./pages/CreateCooperative";
+ // import CreateCooperative from "./pages/CreateCooperative";
 import UpgradePlan from "./pages/UpgradePlan";
-import ChoosePlan from "./pages/ChoosePlan";
 import { Toaster } from "sonner";
 import VerifyEmail from "./screens/Register/VerifyEmail";
 import Layout from "./screens/protected/layout";
 import ProtectedRoute from "./screens/ProtectedRoute";
 import CreateCooperative from "./screens/CreateCooperative/CreateCooperative";
 import RouteProtected from "./screens/Register/RouteProtected";
+import ChoosePlan from "./screens/CreateCooperative/SelectPlan";
+import CooperativeSelection from "./screens/CreateCooperative/CooperativeSelection";
  
 function App() {
   const location = useLocation();

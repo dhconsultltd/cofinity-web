@@ -1,36 +1,18 @@
 // src/lib/api-client.ts
-import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
+import  { type AxiosRequestConfig } from "axios";
 import { toast } from "sonner";
-import { fetchCsrfToken } from "./sanctum";
+import api from "./axios"; // ← use your configured axios instance
 
-// ========================
-// 1. Unified Response Format
-// ========================
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
   data: T;
   errors?: string[];
-  meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    totalPages?: number;
-  };
+  meta?: Record<string, any>;
 }
 
-export interface ApiError {
-  success: false;
-  message: string;
-  errors?: string[];
-  statusCode?: number;
-}
-
-// ========================
-// 2. API Client Class (Your Ionic Pattern — Upgraded)
-// ========================
 class ApiClient {
-  private pendingRequests = new Map<string, Promise<any>>();
+  private pendingGets = new Map<string, Promise<any>>();
 
   private generateKey(method: string, url: string, config?: AxiosRequestConfig): string {
     const params = config?.params ? JSON.stringify(config.params) : "";
@@ -38,7 +20,14 @@ class ApiClient {
     return `${method.toUpperCase()}|${url}|${params}|${body}`;
   }
 
-  private async executeRequest<T>(
+  private async ensureCsrf() {
+    // Only call once per session
+    if (!document.cookie.includes("XSRF-TOKEN")) {
+      await api.get("/sanctum/csrf-cookie");
+    }
+  }
+
+  private async request<T>(
     method: "get" | "post" | "put" | "patch" | "delete",
     url: string,
     data?: any,
@@ -47,126 +36,104 @@ class ApiClient {
     const key = this.generateKey(method, url, config);
     const isGet = method === "get";
 
-    // Deduplicate GET requests (fixes React 18 StrictMode double-mount)
-    if (isGet && this.pendingRequests.has(key)) {
-      console.debug(`[API] Deduplicated GET: ${url}`);
-      return this.pendingRequests.get(key)!;
+    // Deduplicate GET requests
+    if (isGet && this.pendingGets.has(key)) {
+      console.debug("[API] Deduplicated:", url);
+      return this.pendingGets.get(key)!;
     }
 
-    const requestPromise = (async () => {
-      let response: AxiosResponse;
+    // Ensure CSRF token for stateful requests (POST, PUT, DELETE, PATCH)
+    if (!isGet) {
+      await this.ensureCsrf();
+    }
 
-      // Ensure CSRF token for state-changing requests
-      if (!isGet) await fetchCsrfToken();
-
+    const promise = (async () => {
       try {
+        let response;
+
         switch (method) {
           case "get":
-            response = await axios.get(url, config);
+            response = await api.get(url, config);
             break;
           case "post":
-            response = await axios.post(url, data, config);
+            response = await api.post(url, data, config);
             break;
           case "put":
-            response = await axios.put(url, data, config);
+            response = await api.put(url, data, config);
             break;
           case "patch":
-            response = await axios.patch(url, data, config);
+            response = await api.patch(url, data, config);
             break;
           case "delete":
-            response = await axios.delete(url, config);
+            response = await api.delete(url, config);
             break;
         }
 
-        // Normalize success response
         const raw = response.data;
 
-        const normalized: ApiResponse<T> = {
+        return {
           success: true,
-          message: typeof raw === "object" && raw.message ? raw.message : "Success",
+          message: (raw?.message as string) || "Success",
           data: raw?.data ?? raw ?? null,
-          meta: raw?.meta ?? undefined,
-        };
-
-        // // Auto toast on success (optional)
-        // if (normalized.message && normalized.message !== "Success") {
-        //   toast.success(normalized.message);
-        // }
-
-        return normalized;
+          meta: raw?.meta,
+        } as ApiResponse<T>;
       } catch (error: any) {
-        // Normalize error response
         let message = "Something went wrong";
         let errors: string[] = [];
-        let statusCode = error.response?.status;
 
         if (error.response) {
-          const res = error.response?.data;
-
-          if (res?.message) message = res.message;
-          else if (res?.error) message = res.error;
-          else if (typeof res === "string") message = res;
-
+          const res = error.response.data;
+          message = res?.message || res?.error || error.message || message;
           if (res?.errors) {
             errors = Array.isArray(res.errors)
               ? res.errors
-              : Object.values(res.errors).flat() as string[];
-            message = errors[0] || message;
+              : Object.values(res.errors).flat();
           }
         } else if (error.request) {
-          message = "No response from server";
+          message = "No response from server. Check your connection.";
         }
 
-        // Show toast (except 401)
-        if (statusCode !== 401) {
-          toast.error(message);
-        }
+        // Don't toast on 401/419 — your axios interceptor already handles logout
+        // if (![401, 419].includes(error.response?.status)) {
+        //   toast.error(message);
+        // }
 
-        const errorResponse: ApiResponse<T> = {
+        const apiError: ApiResponse<T> = {
           success: false,
           message,
           errors: errors.length ? errors : undefined,
           data: null as T,
         };
 
-        throw errorResponse; // Important: throw so .catch() works
+        throw apiError; // Important!
       }
     })();
 
     // Cache GET requests
     if (isGet) {
-      this.pendingRequests.set(key, requestPromise);
-      requestPromise.finally(() => this.pendingRequests.delete(key));
+      this.pendingGets.set(key, promise);
+      promise.finally(() => this.pendingGets.delete(key));
     }
 
-    return requestPromise;
+    return promise;
   }
 
-  // Public methods
   get<T = any>(url: string, config?: AxiosRequestConfig) {
-    return this.executeRequest<T>("get", url, undefined, config);
+    return this.request<T>("get", url, undefined, config);
   }
-
   post<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
-    return this.executeRequest<T>("post", url, data, config);
+    return this.request<T>("post", url, data, config);
   }
-
   put<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
-    return this.executeRequest<T>("put", url, data, config);
+    return this.request<T>("put", url, data, config);
   }
-
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
-    return this.executeRequest<T>("patch", url, data, config);
+    return this.request<T>("patch", url, data, config);
   }
-
   delete<T = any>(url: string, config?: AxiosRequestConfig) {
-    return this.executeRequest<T>("delete", url, undefined, config);
+    return this.request<T>("delete", url, undefined, config);
   }
 }
 
-// ========================
-// 3. Export Instance
-// ========================
 export const apiClient = new ApiClient();
-
 export default apiClient;

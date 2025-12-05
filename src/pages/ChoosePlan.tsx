@@ -1,74 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Check, Calendar, Clock, Infinity } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import type { BillingCycle, Plan } from "@/types/plan.types";
 
-type BillingCycle = "monthly" | "yearly" | "lifetime";
-
-type Plan = {
-  id: string;
-  name: string;
-  monthlyPrice: number;
-  yearlyPrice?: number;
-  lifetimePrice?: number;
-  users: string;
-  subAdmins: string;
-  features: string[];
-  highlighted?: boolean;
-  badge?: string;
-};
-
-const PLANS: Plan[] = [
-  {
-    id: "starter",
-    name: "Starter",
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    lifetimePrice: 0,
-    users: "10 Users",
-    subAdmins: "2 Sub-admins",
-    features: [
-      "Dashboard",
-      "Community support",
-      "Limited exports",
-      "1 Account type",
-    ],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    monthlyPrice: 5000,
-    yearlyPrice: 5000 * 10,
-    lifetimePrice: 50000,
-    users: "50 Users",
-    subAdmins: "10 Sub-admins",
-    features: [
-      "Dashboard",
-      "Priority support",
-      "Bulk operations",
-      "Export features",
-      "2 Account type",
-    ],
-    highlighted: true,
-    badge: "Most Popular",
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    monthlyPrice: 20000,
-    yearlyPrice: 20000 * 10,
-    lifetimePrice: 200000,
-    users: "Unlimited Users",
-    subAdmins: "Unlimited Sub-admins",
-    features: [
-      "Dashboard",
-      "All Pro features",
-      "Dedicated account manager",
-      "SLA & onboarding",
-      "5 Account types",
-    ],
-  },
-];
-
+ 
 const currencyFormat = (n: number) =>
   n >= 1000 ? `₦${n.toLocaleString()}` : `₦${n}`;
 
@@ -79,6 +14,33 @@ const ChoosePlan: React.FC = () => {
 
   const [billing, setBilling] = useState<BillingCycle>("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+    const [plansData, setPlansData] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+
+
+
+
+   useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        setLoading(true);
+        const response =  api_c
+        setPlansData(response.data);
+      } catch (err: any) {
+        setError("Failed to load pricing plans.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+
+
 
   const plans = useMemo(
     () =>

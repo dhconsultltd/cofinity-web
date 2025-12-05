@@ -1,5 +1,5 @@
 import React, { type JSX } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { getData } from "@/lib/storageHelper";
 
@@ -14,8 +14,9 @@ export default function ProtectedRoute({
   requireCooperative = true,
   redirectTo = "/login",
 }: Props) {
-  const { isAuthenticated, isLoading, user, tenants } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+  const router = useNavigate();
 
   if (isLoading) return null; // or return a spinner
 
@@ -30,14 +31,15 @@ export default function ProtectedRoute({
 
     if (requireCooperative) {
     // check server state first, then local persisted selection
-    const hasServerCooperative =
-      (Array.isArray(tenants) && tenants.length > 0) || !!(user as any)?.selected_cooperative;
+  
 
     const localSelected = getData<number | string>("selected_cooperative_id");
-    const hasLocalCooperative = !!localSelected;
+ 
+    console.log(localSelected); 
 
-    if (!hasServerCooperative && !hasLocalCooperative) {
-      return <Navigate to="/cooperative-selection" replace />;
+    if (  localSelected  == null) {
+      router('/cooperative-selection')
+      return ;
     }
 
 

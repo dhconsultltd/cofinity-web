@@ -27,6 +27,11 @@ export const TENANT_API = {
   CREATE_TENANT: `${API_BASE}/api/tenants/create`
 };
 
+
+export const APIS = { 
+  GET_PLANS: `${API_BASE}/api/plans`,
+}
+
 // Members
 export const MEMBERS_API = {
   LIST: `${API_BASE}/api/members`,
