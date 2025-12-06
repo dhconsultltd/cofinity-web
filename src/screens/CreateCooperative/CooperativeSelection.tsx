@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import type { Tenant } from "@/types/tenant.types";
 import { Button } from "@/components/ui/button";
+import { saveData } from "@/lib/storageHelper";
 
 
 export default function CooperativeSelection() {
@@ -37,8 +38,10 @@ export default function CooperativeSelection() {
         toast.error("Cooperative is Suspended. Please contact support.");
         return;
       }
-      if (selectedTenant.plan_id == null) {
+      if (selectedTenant.status == 'pending_payment') {
         toast.error("Plan selection required", {description: 'You are require to pick a plan'});
+
+        
 
 
         navigate("/choose-plan", {state: {tenant: selectedTenant}});
@@ -46,6 +49,7 @@ export default function CooperativeSelection() {
         return;
       }
 
+      saveData('selected_cooperative_id', selectedTenant.id)
 
 
       toast.success("Navigating to dashboard...");
