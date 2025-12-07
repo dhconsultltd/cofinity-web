@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 // import Layoutt from "./components/Layoutt";
 import Dashboard from "./pages/Dashboard";
-import Member from "./pages/Member";
+
 import Loans from "./pages/Loans";
 import Savings from "./pages/Savings";
 import Shares from "./pages/Shares";
@@ -26,6 +26,9 @@ import CooperativeSelection from "./screens/CreateCooperative/CooperativeSelecti
 import RouteProtected from "./screens/Register/RouteProtected";
 import CreateCooperative from "./screens/CreateCooperative/CreateCooperative";
 import ProtectedRoute from "./screens/ProtectedRoute";
+import BranchesManagement from "./screens/protected/branches/Branches";
+import Members from "./screens/protected/members/Members";
+import AddMember from "./screens/protected/members/AddMember";
 
 function App() {
   const location = useLocation();
@@ -143,7 +146,9 @@ function App() {
             <Routes>
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/members" element={<Member />} />
+              <Route path="/branches" element={<BranchesManagement />} />
+              <Route path="/members" element={<Members />} />
+              <Route path="/add-member" element={<AddMember />} />
               <Route path="/loans" element={<Loans />} />
               <Route path="/savings" element={<Savings />} />
               <Route path="/shares" element={<Shares />} />

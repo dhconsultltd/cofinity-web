@@ -27,6 +27,7 @@ export const TENANT_API = {
   TENANT: `${API_BASE}/api/tenant`,
   CREATE_TENANT: `${API_BASE}/api/tenants/create`,
   TENANT_STATUS: (id: string | number) => `${API_BASE}/api/tenants/${id}/status`,
+  SWITCH:  `${API_BASE}/api/tenants/switch`,
 };
 
 // Usage:
@@ -46,6 +47,15 @@ export const MEMBERS_API = {
   UPDATE: (id: string | number) => `${API_BASE}/api/members/${id}`,
   DELETE: (id: string | number) => `${API_BASE}/api/members/${id}`,
 };
+
+export const BRANCH_API = { 
+  LIST: `${API_BASE}/api/branches`,
+  CREATE: `${API_BASE}/api/branches`,
+  SHOW: (id: string | number) => `${API_BASE}/api/branches/${id}`,
+  UPDATE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
+  DELETE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
+  
+}
 
 // Transactions
 export const TRANSACTIONS_API = {
