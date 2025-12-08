@@ -23,6 +23,9 @@ import ChoosePlan from "./pages/ChoosePlan";
 import { Toaster } from "sonner";
 import VerifyEmail from "./screens/Register/VerifyEmail";
 import Layout from "./screens/protected/layout";
+import RouteProtected from "./screens/Register/RouteProtected";
+import ProtectedRoute from "./screens/ProtectedRoute";
+import CreateCooperative from "./screens/CreateCooperative/CreateCooperative";
 
 function App() {
   const location = useLocation();
