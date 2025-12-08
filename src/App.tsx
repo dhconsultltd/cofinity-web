@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 // import Layoutt from "./components/Layoutt";
 import Dashboard from "./pages/Dashboard";
-
+import Member from "./pages/Member";
 import Loans from "./pages/Loans";
 import Savings from "./pages/Savings";
 import Shares from "./pages/Shares";
@@ -21,9 +21,6 @@ import UpgradePlan from "./pages/UpgradePlan";
 import { Toaster } from "sonner";
 import VerifyEmail from "./screens/Register/VerifyEmail";
 import Layout from "./screens/protected/layout";
-import RouteProtected from "./screens/Register/RouteProtected";
-import ProtectedRoute from "./screens/ProtectedRoute";
-import CreateCooperative from "./screens/CreateCooperative/CreateCooperative";
 import ChoosePlan from "./screens/CreateCooperative/SelectPlan";
 import CooperativeSelection from "./screens/CreateCooperative/CooperativeSelection";
 import RouteProtected from "./screens/Register/RouteProtected";
@@ -144,7 +141,7 @@ function App() {
           </Routes>
         </>
       ) : (
-        <ProtectedRoute requireCooperative={true}>
+        <ProtectedRoute>
           <Layout navbarTitle={getNavbarTitle()}>
             <Routes>
               {/* Dashboard Routes */}
