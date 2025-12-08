@@ -4,24 +4,22 @@ import { API_BASE } from "@/constants/api";
 
 const api = axios.create({
   baseURL: API_BASE,
-  withCredentials: true, // Critical for Sanctum cookies
+  withCredentials: true,
   headers: {
-     Accept: "application/json",
+    Accept: "application/json",
     "X-Requested-With": "XMLHttpRequest",
- 
-
   },
 });
 
-// Optional: Global response interceptor (401 → auto logout)
+// Global 401/419 handler
 api.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   (error) => {
-
-    console.error("API error:", error);
     if (error.response?.status === 401 || error.response?.status === 419) {
-      // 419 = CSRF token mismatch or session expired
-      // window.location.href = "/login";
+      // Only redirect if we're not already on login page
+      if (!window.location.pathname.includes("/login")) {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

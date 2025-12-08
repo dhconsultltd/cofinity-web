@@ -57,6 +57,9 @@ export default function ProtectedLayout({ children, navbarTitle }: ProtectedLayo
         return "Welcome, Admin";
       case "/members":
         return "Members Overview";
+      case "/branches": 
+        return "Branch Management";
+       
       case "/loans":
         return "Loans Management";
       case "/savings":

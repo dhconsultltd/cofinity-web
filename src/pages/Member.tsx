@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Users, Landmark, PiggyBank, IdCard, Search } from "lucide-react";
 
-const Member = () => {
+const Members = () => {
   const members = [
     {
       name: "Sophia Clark",
@@ -227,4 +227,4 @@ const Member = () => {
   );
 };
 
-export default Member;
+export default Members;

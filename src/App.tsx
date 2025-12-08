@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 // import Layoutt from "./components/Layoutt";
 import Dashboard from "./pages/Dashboard";
-import Member from "./pages/Member";
+
 import Loans from "./pages/Loans";
 import Savings from "./pages/Savings";
 import Shares from "./pages/Shares";
@@ -16,16 +16,22 @@ import VerifyLogin from "./screens/Login/VerifyLogin";
 import ForgotPassword from "./screens/Login/ForgotPassword";
 import Signup from "./screens/Register/Signup";
 
-import CooperativeSelection from "./pages/CooperativeSelection";
 // import CreateCooperative from "./pages/CreateCooperative";
 import UpgradePlan from "./pages/UpgradePlan";
-import ChoosePlan from "./pages/ChoosePlan";
 import { Toaster } from "sonner";
 import VerifyEmail from "./screens/Register/VerifyEmail";
 import Layout from "./screens/protected/layout";
 import RouteProtected from "./screens/Register/RouteProtected";
 import ProtectedRoute from "./screens/ProtectedRoute";
 import CreateCooperative from "./screens/CreateCooperative/CreateCooperative";
+import ChoosePlan from "./screens/CreateCooperative/SelectPlan";
+import CooperativeSelection from "./screens/CreateCooperative/CooperativeSelection";
+import RouteProtected from "./screens/Register/RouteProtected";
+import CreateCooperative from "./screens/CreateCooperative/CreateCooperative";
+import ProtectedRoute from "./screens/ProtectedRoute";
+import BranchesManagement from "./screens/protected/branches/Branches";
+import Members from "./screens/protected/members/Members";
+import AddMember from "./screens/protected/members/AddMember";
 
 function App() {
   const location = useLocation();
@@ -138,12 +144,14 @@ function App() {
           </Routes>
         </>
       ) : (
-        <ProtectedRoute>
+        <ProtectedRoute requireCooperative={true}>
           <Layout navbarTitle={getNavbarTitle()}>
             <Routes>
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/members" element={<Member />} />
+              <Route path="/branches" element={<BranchesManagement />} />
+              <Route path="/members" element={<Members />} />
+              <Route path="/add-member" element={<AddMember />} />
               <Route path="/loans" element={<Loans />} />
               <Route path="/savings" element={<Savings />} />
               <Route path="/shares" element={<Shares />} />

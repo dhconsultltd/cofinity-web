@@ -16,6 +16,7 @@ import { AUTH_API } from "@/constants/api";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/lib/axios";
 import { saveData } from "@/lib/storageHelper";
+import apiClient from "@/lib/api-client";
 
 const VerifyLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -117,7 +118,7 @@ const VerifyLogin: React.FC = () => {
     setIsVerifying(true);
 
     try {
-      await api.post(AUTH_API.VERIFY_LOGIN_CODE, {
+      const response = await apiClient.post(AUTH_API.VERIFY_LOGIN_CODE, {
         code: verificationCode,
       });
 
@@ -128,11 +129,13 @@ const VerifyLogin: React.FC = () => {
 
       //check if user has tenant get cooperative
 
+      console.log(response)
+
+
+      if(response.success && response.data.success){
       await saveData('isLoginVerified', true);
 
-      
-
-      console.log("this is tenant", tenants);
+       
 
      if(tenants != null && tenants.length >  0){
 
@@ -144,7 +147,11 @@ const VerifyLogin: React.FC = () => {
       
        navigate('/create-cooperative')
 
-     }
+     } 
+    }else{ 
+
+      toast.error("Invalid Code", {description: 'Invalid or expired verification code.'})
+    }
  
 
 
@@ -161,7 +168,8 @@ const VerifyLogin: React.FC = () => {
 
       setCode(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-    } finally {
+    } finally { 
+      setCode(["", "", "", "", "", ""]);
       setIsVerifying(false);
     }
   };

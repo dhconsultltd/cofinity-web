@@ -11,11 +11,26 @@ export type Member = {
   bvn_verified_at?: string | null;
   nin_verified_at?: string | null;
   balance: number; // in kobo or naira — your choice (we use kobo internally)
-  status: "active" | "inactive" | "suspended";
+  // status: "active" | "inactive" | "suspended";
+   updated_at: string;
+
+   
+  membership_id: string; 
+  other_name?: string; 
+  total_savings: number;
+  status: string;
+  bvn_verified: boolean;
+  nin_verified: boolean;
   created_at: string;
-  updated_at: string;
+  meta?: {
+    member_type?: "regular" | "vip" | "premium" | "founder";
+  };
+
+
 };
 
 export type MemberWithFullName = Member & {
   full_name: string;
 };
+
+ 

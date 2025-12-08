@@ -4,6 +4,8 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { nigeriaStatesAndLgas } from "@/data/nigeria";
+ import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,11 +18,29 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+import {
+  Calendar as CalendarIcon,
+  Upload,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Building2,
+  MapPin,
+  Landmark,
+  FileText,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Select,
   SelectContent,
@@ -41,6 +61,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -98,6 +132,7 @@ export default function CreateCooperative() {
 
   const [selectedState, setSelectedState] = useState("");
   const lgas = selectedState ? nigeriaStatesAndLgas[selectedState] : [];
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -141,6 +176,7 @@ export default function CreateCooperative() {
   };
 
   const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     const formData = new FormData();
 
     // Append all text fields
@@ -156,6 +192,19 @@ export default function CreateCooperative() {
 
     try {
       const response = api.post(TENANT_API.CREATE_TENANT, data);
+    Object.entries(data).forEach(([key, value]) => {
+      if (value instanceof Date) {
+        formData.append(key, value.toISOString().split("T")[0]);
+      } else if (value instanceof File) {
+        formData.append(key, value);
+      } else if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+
+    try {
+      setIsLoading(true);
+       const response = await apiClient.post(TENANT_API.CREATE_TENANT, formData);
 
       console.log(response);
 
@@ -179,15 +228,25 @@ export default function CreateCooperative() {
   const nextStep = async () => {
     const fieldsToValidate = {
       1: [
+        
         "name",
+       
         "initials",
+       
         "registration_number",
+       
         "email",
+       
         "phone",
+       
         "description",
+       
         "industry_type",
+       
         "business_type",
+       
         "founded_at",
+      ,
       ],
       2: ["address", "city", "state", "lga", "country", "website"],
       3: ["bank_name", "account_name", "account_number"],
@@ -224,12 +283,83 @@ export default function CreateCooperative() {
           </CardHeader>
 
           <CardContent>
+    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center justify-center mb-6">
+            <div className="relative">
+              <div className="bg-gray-900 rounded-full p-3">
+                <CurrentStepIcon className="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
+            Create Your Cooperative
+          </h1>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            Set up your cooperative profile and get ready to manage members, funds, and transactions securely.
+          </p>
+        </div>
+
+        {/* Progress Indicator */}
+        <div className="mb-8 space-y-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-gray-900">Step {currentStep} of {steps.length}</span>
+              <Badge variant="secondary" className="bg-gray-100 text-gray-900">
+                {steps[currentStep - 1].title}
+              </Badge>
+            </div>
+            <span className="text-xs text-gray-500">{Math.round(progress)}% complete</span>
+          </div>
+          <Progress value={progress} className="h-1.5 bg-gray-200" />
+
+          {/* Step Indicators */}
+          <div className="flex gap-3 pt-2">
+            {steps.map((step) => {
+              const StepIcon = step.icon;
+              const isActive = step.number === currentStep;
+              const isCompleted = step.number < currentStep;
+
+              return (
+                <div
+                  key={step.number}
+                  className={cn(
+                    "flex-1 p-3 rounded-lg border transition-all duration-300 cursor-pointer",
+                    isActive
+                      ? "bg-gray-900 text-white border-gray-900"
+                      : isCompleted
+                      ? "bg-gray-100 text-gray-900 border-gray-200"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <StepIcon className="w-5 h-5 flex-shrink-0" />
+                    <div className="text-left">
+                      <p className={cn("text-xs font-medium", isActive || isCompleted ? "font-semibold" : "")}>
+                        {step.title}
+                      </p>
+                      <p className={cn("text-xs", isActive || isCompleted ? "" : "text-gray-500")}>
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Form Card */}
+        <Card className="border-gray-200 bg-white shadow-lg">
+          <CardContent className="p-8 sm:p-10">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
-                {/* STEP 1 */}
+                {/* STEP 1 - Basic Info */}
                 {currentStep === 1 && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -263,6 +393,46 @@ export default function CreateCooperative() {
                                 {...field}
                               />
                             </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                  <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                    {/* Row 1: Name & Initials */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 text-sm font-medium">
+                              Cooperative Name <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., FutureGrow Cooperative"
+                                className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-500" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="initials"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 text-sm font-medium">Initials</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., FGC"
+                                maxLength={10}
+                                className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-500" />
                           </FormItem>
                         )}
                       />
@@ -303,6 +473,69 @@ export default function CreateCooperative() {
                           </FormItem>
                         )}
                       />
+                    {/* Row 2: Registration & Email */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="registration_number"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 text-sm font-medium">
+                              Registration Number <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="CAC Registration No."
+                                className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-500" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 text-sm font-medium">
+                              Email Address <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="hello@cooperative.com"
+                                className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-500" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Row 3: Phone */}
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 text-sm font-medium">
+                            Phone Number <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="+234 (0) XXX XXX XXXX"
+                              className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-500" />
+                        </FormItem>
+                      )}
+                    />
 
                       <FormField
                         control={form.control}
@@ -601,6 +834,102 @@ export default function CreateCooperative() {
                         </FormItem>
                       )}
                     />
+                    {/* City, State, LGA, Country */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 text-sm font-medium">
+                              City <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Lagos"
+                                className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-500 text-xs" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="state"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 text-sm font-medium">
+                              State <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Lagos"
+                                className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-500 text-xs" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="lga"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 text-sm font-medium">
+                              LGA <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Ikeja"
+                                className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-500 text-xs" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 text-sm font-medium">Country</FormLabel>
+                            <FormControl>
+                              <Input
+                                defaultValue="Nigeria"
+                                disabled
+                                className="border-gray-300 text-gray-500 h-11 bg-gray-50"
+                                {...field}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Website */}
+                    <FormField
+                      control={form.control}
+                      name="website"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 text-sm font-medium">Website (Optional)</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="https://yourcooperative.coop"
+                              className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-500" />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 )}
 
@@ -648,6 +977,59 @@ export default function CreateCooperative() {
                         )}
                       </div>
                     </div>
+                      <FormLabel className="text-gray-700 text-sm font-medium block mb-4">Cooperative Logo</FormLabel>
+                      {logoPreview ? (
+                        <div className="flex items-center gap-4 p-4 rounded-lg bg-gray-50 border border-gray-200">
+                          <img
+                            src={logoPreview}
+                            alt="Logo"
+                            className="w-20 h-20 rounded-lg object-cover border border-gray-200"
+                          />
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-900 font-medium">Logo uploaded successfully</p>
+                            <p className="text-xs text-gray-500 mt-1">Image will be used for your cooperative profile</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                            onClick={() => {
+                              setLogoPreview(null);
+                              form.setValue("logo", null);
+                            }}
+                          >
+                            Change
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                            <p className="text-sm text-gray-900 font-medium">Click to upload logo</p>
+                            <p className="text-xs text-gray-500 mt-1">PNG, JPG or GIF (Max 5MB)</p>
+                          </div>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleFile("logo", e.target.files?.[0] || null)}
+                          />
+                        </label>
+                      )}
+                    </div>
+
+                    {/* Bank Details Section */}
+                    <div className="space-y-6 border-t border-gray-200 pt-8">
+                      <div>
+                        <h3 className="text-gray-900 font-semibold text-base flex items-center gap-2">
+                          <Landmark className="w-5 h-5" />
+                          Bank Account Details
+                        </h3>
+                        <p className="text-gray-600 text-sm mt-1">
+                          Primary account for cooperative transactions
+                        </p>
+                      </div>
 
                     <div className="space-y-4 border-t pt-6">
                       <h3 className="font-semibold text-lg">
@@ -698,6 +1080,64 @@ export default function CreateCooperative() {
                             </FormItem>
                           )}
                         />
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="bank_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-700 text-sm font-medium">
+                                Bank Name <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g., GTBank"
+                                  className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-500" />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="account_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-700 text-sm font-medium">
+                                Account Name <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Cooperative Account Name"
+                                  className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-500" />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="account_number"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-700 text-sm font-medium">
+                                Account Number <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="0123456789"
+                                  className="border-gray-300 text-gray-900 placeholder:text-gray-400 h-11"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-500" />
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     </div>
 
@@ -708,7 +1148,6 @@ export default function CreateCooperative() {
                       <div className="mt-3">
                         {cacPreview ? (
                           <div className="flex items-center gap-3 text-sm">
-                            <span>CAC Document uploaded</span>
                             <CheckCircle2 className="w-5 h-5 text-green-600" />
                             <span>CAC Document uploaded</span>
                             <Button
@@ -743,6 +1182,39 @@ export default function CreateCooperative() {
                           </label>
                         )}
                       </div>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-900 font-medium">Document uploaded successfully</p>
+                            <p className="text-xs text-gray-600 mt-1">CAC certificate is ready for verification</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                            onClick={() => {
+                              setCacPreview(null);
+                              form.setValue("cac_document", null);
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                            <p className="text-sm text-gray-900 font-medium">Click to upload CAC document</p>
+                            <p className="text-xs text-gray-500 mt-1">PDF only (Max 10MB)</p>
+                          </div>
+                          <Input
+                            type="file"
+                            accept=".pdf"
+                            className="hidden"
+                            onChange={(e) => handleFile("cac_document", e.target.files?.[0] || null)}
+                          />
+                        </label>
+                      )}
                     </div>
                   </div>
                 )}
@@ -773,6 +1245,41 @@ export default function CreateCooperative() {
                     >
                       <CheckCircle2 className="w-5 h-5 mr-2" />
                       Create Cooperative
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="bg-gray-900 text-white hover:bg-gray-800 font-semibold px-8"
+                    >
+                      {isLoading ? (
+                        <>
+                          <svg
+                            className="w-4 h-4 mr-2 animate-spin"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4 mr-2" />
+                          Create Cooperative
+                        </>
+                      )}
                     </Button>
                   )}
                 </div>
