@@ -34,19 +34,7 @@ const Savings = () => {
 
   const navigate = useNavigate(); 
   
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const menuItems = [
-    { name: "Dashboard", icon: <LayoutDashboard size={18} /> },
-    { name: "Members", icon: <Users size={18} /> },
-    { name: "Loans", icon: <CreditCard size={18} /> },
-    { name: "Savings", icon: <PiggyBank size={18} /> },
-    { name: "Shares", icon: <Coins size={18} /> },
-    { name: "Transactions", icon: <Receipt size={18} /> },
-    { name: "KYC", icon: <Shield size={18} /> },
-    { name: "Report", icon: <FileText size={18} /> },
-    { name: "Users", icon: <Users size={18} /> },
-    { name: "Settings", icon: <Settings size={18} /> },
-  ];
+ 
 
   const members = [
     {

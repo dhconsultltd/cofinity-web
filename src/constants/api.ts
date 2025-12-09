@@ -1,4 +1,7 @@
 // src/constants/api.ts
+
+import { id } from "date-fns/locale";
+
 // Use Vite's `import.meta.env` in the browser instead of `process.env` (Next.js style).
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -42,7 +45,7 @@ export const APIS = {
 // Members
 export const MEMBERS_API = {
   LIST: `${API_BASE}/api/members`,
-  CREATE: `${API_BASE}/api/members`,
+   CREATE: `${API_BASE}/api/members`,
   SHOW: (id: string | number) => `${API_BASE}/api/members/${id}`,
   UPDATE: (id: string | number) => `${API_BASE}/api/members/${id}`,
   TRANSACTIONS: (id: string| number) => `${API_BASE}/api/members/${id}/transactions`,
@@ -75,10 +78,25 @@ export const SAVINGPRODUCT_API = {
  DELETE : (id: string | number) => `${API_BASE}/api/savings-products/${id}`,
  QUOTA : `${API_BASE}/api/savings-products-quota`,
  TOGGLE : (id: string | number ) => `${API_BASE}/api/savings-products/${id}/toggle`,
-
- 
-
+  
 }
+
+export const SAVINGACCOUNT_API = { 
+ LIST : `${API_BASE}/api/savings-accounts`,
+ CREATE : `${API_BASE}/api/savings-accounts`,
+ SHOW : (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
+ UPDATE : (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
+ DELETE : (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
+ QUOTA : `${API_BASE}/api/savings-accounts-quota`,
+ SUMMARY : `${API_BASE}/api/savings-accounts-summary`,
+ TOGGLE : (id: string | number ) => `${API_BASE}/api/savings-accounts/${id}/toggle`,
+
+
+ DEPOSIT:  `${API_BASE}/api/savings/transactions/deposit`,
+  WITHDRAW: `${API_BASE}/api/savings/transactions/withdraw`,
+  
+}
+
 
 export const BRANCH_API = { 
   LIST: `${API_BASE}/api/branches`,

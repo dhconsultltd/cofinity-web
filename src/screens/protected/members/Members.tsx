@@ -39,8 +39,7 @@ export default function Members() {
     },
   });
 
-  console.log(data)
-
+ 
   const members: Member[] = data?.members?.data || [];
   const pagination = data?.members;
   const quota = data?.quota;
