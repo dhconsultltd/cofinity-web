@@ -10,28 +10,15 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
 
     server: {
-    // https: {
-    //    key: fs.readFileSync(path.resolve(__dirname, 'localhost+2-key.pem')),
-    //   cert: fs.readFileSync(path.resolve(__dirname, 'localhost+2.pem')),
-    // },
-    // proxy: {
-    //   // Proxy everything Laravel needs
-    //   '/sanctum':     { target: 'http://10.203.153.236:8000', changeOrigin: true, secure: false },
-    //   '/api':         { target: 'http://10.203.153.236:8000', changeOrigin: true, secure: false },
-    //   '/api/auth/login':       { target: 'http://10.203.153.236:8000', changeOrigin: true, secure: false },
-    //   '/logout':      { target: 'http://10.203.153.236:8000', changeOrigin: true, secure: false },
-    //   '/register':    { target: 'http://10.203.153.236:8000', changeOrigin: true, secure: false },
-    //   '/user':        { target: 'http://10.203.153.236:8000', changeOrigin: true, secure: false },
-    //   // add more if needed
-    // },
+    
     proxy: {
       '/sanctum': {
-        target: 'http://192.168.0.198:8000',
+        target: 'http://10.15.53.236:8000',
         changeOrigin: true,
         secure: false,
       },
       '/api': {
-        target: 'http://192.168.0.198:8000',
+        target: 'http://10.15.53.236:8000',
         changeOrigin: true,
         secure: false,
       

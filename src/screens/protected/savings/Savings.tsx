@@ -66,7 +66,12 @@ interface SavingsAccount {
 }
 
    
-
+interface MemberBankAccount {
+  id: string;
+  bank_name: string;
+  account_number: string;
+  account_name: string;
+}
 
 // Validation Schemas
 const createSchema = z.object({
@@ -146,7 +151,7 @@ export default function Savings() {
   }, [selectedAccount, withdrawalOpen]);
 
   // Forms
-  const createForm = useForm<z.infer<typeof createSchema>>({
+  const createForm  = useForm<z.infer<typeof createSchema>>({
     resolver: zodResolver(createSchema),
     defaultValues: { opening_balance: 0 },
   });
@@ -443,27 +448,49 @@ export default function Savings() {
           <form onSubmit={createForm.handleSubmit((d) => createMutation.mutate(d))} className="space-y-5">
             <MemberSearchSelect
               value={selectedMember}
+              className="space-y-2"
               onChange={(m) => {
                 setSelectedMember(m);
                 if (m) createForm.setValue("member_id", m.id.toString());
               }}
             />
-            <div>
+                 {createForm.formState.errors.member_id && (
+    <p className="text-sm text-red-600 -mt-2">Select a member</p>
+  )}
+            <div className="space-y-2">
               <Label>Savings Product *</Label>
               <Select onValueChange={(v) => createForm.setValue("savings_product_id", v)}>
-                <SelectTrigger><SelectValue placeholder="Select product" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Select product" /></SelectTrigger>
                 <SelectContent>
                   {products.map((p) => (
                     <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
+              </Select> 
+
+              {createForm.formState.errors.savings_product_id && (
+      <p className="text-sm text-red-600 mt-1">Select a product</p>
+    )}
             </div>
-            <div>
+            <div className="space-y-2 ">
               <Label>Opening Balance</Label>
-              <Input type="number" step="0.01" {...createForm.register("opening_balance")} />
+
+              <Input
+  type="number"
+  step="0.01"
+  placeholder="0.00"
+  {...createForm.register("opening_balance", { valueAsNumber: true })}
+/>
+              {/* <Input type="number" step="0.01" {...createForm.register("opening_balance")} /> */}
+
+              {createForm.formState.errors.opening_balance && (
+      <p className="text-sm text-red-600 mt-1">
+        {createForm.formState.errors.opening_balance.message || "Enter a valid amount"}
+      </p>
+    )}
+              
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Description (optional)</Label>
               <Textarea {...createForm.register("description")} />
             </div>
@@ -488,11 +515,11 @@ export default function Savings() {
             className="space-y-5"
           >
             <AccountSearch onSelect={(acc) => { setSelectedAccount(acc); depositForm.setValue("savings_account_id", acc.id); }} />
-            <div>
+            <div className="space-y-3">
               <Label>Amount *</Label>
               <Input type="number" step="0.01" {...depositForm.register("amount", { valueAsNumber: true })} placeholder="0.00" />
             </div>
-            <div>
+            <div className="space-y-3">
               <Label>Description (optional)</Label>
               <Textarea {...depositForm.register("description")} />
             </div>
@@ -528,7 +555,7 @@ export default function Savings() {
               <div>
                 <Label>Withdraw to Bank Account (optional)</Label>
                 <Select onValueChange={(v) => withdrawalForm.setValue("member_bank_account_id", v || undefined)}>
-                  <SelectTrigger><SelectValue placeholder="Select bank account" /></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Select bank account" /></SelectTrigger>
                   <SelectContent>
                     {memberBankAccounts.map((ba) => (
                       <SelectItem key={ba.id} value={ba.id}>
@@ -561,10 +588,10 @@ export default function Savings() {
                         </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={calcForm.handleSubmit(calculateInterest)} className="space-y-4">
-                        <div>
+                        <div className="space-y-2">
                             <Label>Product</Label>
                             <Select onValueChange={(v) => calcForm.setValue("product_id", v)}>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select product" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -575,8 +602,14 @@ export default function Savings() {
                                     ))}
                                 </SelectContent>
                             </Select>
+
+                            {calcForm.formState.errors.product_id && (
+      <p className="text-sm text-red-600 mt-1">
+        { "Enter a valid account type"}
+      </p>
+    )}
                         </div>
-                        <div>
+                        <div className="space-y-2">
                             <Label>Current Balance</Label>
                             <Input
                                 type="number"
@@ -584,9 +617,15 @@ export default function Savings() {
                                 {...calcForm.register("balance", { valueAsNumber: true })}
                                 placeholder="0.00"
                             />
+
+{calcForm.formState.errors.balance && (
+      <p className="text-sm text-red-600 mt-1">
+        { "Enter a valid figure"}
+      </p>
+    )}
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <div>
+                            <div className="space-y-2">
                                 <Label>Duration</Label>
                                 <Input
                                     type="number"
@@ -594,10 +633,10 @@ export default function Savings() {
                                     placeholder="12"
                                 />
                             </div>
-                            <div>
+                            <div className="space-y-2">
                                 <Label>Period</Label>
                                 <Select onValueChange={(v) => calcForm.setValue("period", v as any)}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>

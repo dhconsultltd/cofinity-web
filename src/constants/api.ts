@@ -97,7 +97,6 @@ export const SAVINGACCOUNT_API = {
   
 }
 
-
 export const BRANCH_API = { 
   LIST: `${API_BASE}/api/branches`,
   CREATE: `${API_BASE}/api/branches`,
@@ -106,6 +105,18 @@ export const BRANCH_API = {
   DELETE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
   
 }
+
+
+
+export const SAVINGTRANSACTION_API = { 
+  LIST: `${API_BASE}/api/branches`,
+  CREATE: `${API_BASE}/api/branches`,
+  SHOW: (id: string | number) => `${API_BASE}/api/branches/${id}`,
+  UPDATE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
+  DELETE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
+  
+}
+
 
 // Transactions
 export const TRANSACTIONS_API = {
