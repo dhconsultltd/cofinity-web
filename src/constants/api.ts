@@ -120,6 +120,16 @@ export const SAVINGTRANSACTION_API = {
 }
 
 
+export const SHARESPLAN_API = {
+  LIST: "/api/shares-plans",
+  QUOTA: "/api/shares-plans-quota",
+  DELETE: (id: number) => `/api/shares-plans/${id}`,
+  TOGGLE: (id: number) => `/api/shares-plans/${id}/toggle`,
+};
+
+
+
+
 // Transactions
 export const TRANSACTIONS_API = {
   LIST: `${API_BASE}/api/transactions`,

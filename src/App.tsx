@@ -34,6 +34,7 @@ import Savings from "./screens/protected/savings/Savings";
 import SavingsAccountDetail from "./screens/protected/savings/SavingsAccountDetail";
 import UpcomingPaymentsPage from "./screens/protected/upcomingPayments/UpcomingPaymentsPage";
 import LoanRepaymentPage from "./screens/protected/loanRepayment/LoanRepaymentPage";
+import SharesPlansPage from "./screens/protected/shares/SharesProductSetting";
  
 function App() {
   const location = useLocation();
@@ -157,6 +158,7 @@ function App() {
               <Route path="/members/:id" element={<ViewMember />} />
               <Route path="/loans" element={<LoansPage />} />
               <Route path="/loan-product" element={<LoanSettingsPage />} />
+              <Route path="/shares-plan" element={<SharesPlansPage />} />
               <Route path="/savings" element={<Savings />} />
               <Route path="/savings-products" element={<SavingsSettingsPage /> } /> 
               <Route path="/savings/accounts/:id" element={<SavingsAccountDetail /> } />
