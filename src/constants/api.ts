@@ -127,6 +127,14 @@ export const SHARESPLAN_API = {
   TOGGLE: (id: number) => `/api/shares-plans/${id}/toggle`,
 };
 
+export const MEMBER_SHARE_ACCOUNT_API = {
+  LIST: "/api/member-share-accounts",
+  QUOTA: "/api/member-share-accounts-quota",
+  CREATE: "/api/member-share-accounts",
+  TOGGLE: (id: number) => `/api/member-share-accounts/${id}/toggle`,
+};
+
+
 
 
 

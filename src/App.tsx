@@ -1,7 +1,6 @@
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 // import Layoutt from "./components/Layoutt";
 import Dashboard from "./pages/Dashboard";
-import Shares from "./pages/Shares";
 import Transactions from "./pages/Transactions";
 import Kyc from "./pages/Kyc";
 import Report from "./pages/Report";
@@ -35,6 +34,7 @@ import SavingsAccountDetail from "./screens/protected/savings/SavingsAccountDeta
 import UpcomingPaymentsPage from "./screens/protected/upcomingPayments/UpcomingPaymentsPage";
 import LoanRepaymentPage from "./screens/protected/loanRepayment/LoanRepaymentPage";
 import SharesPlansPage from "./screens/protected/shares/SharesProductSetting";
+import MemberShareAccountsPage from "./screens/protected/shares/Shares";
  
 function App() {
   const location = useLocation();
@@ -163,7 +163,7 @@ function App() {
               <Route path="/savings-products" element={<SavingsSettingsPage /> } /> 
               <Route path="/savings/accounts/:id" element={<SavingsAccountDetail /> } />
 
-              <Route path="/shares" element={<Shares />} />
+              <Route path="/shares" element={<MemberShareAccountsPage />} />
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/kyc" element={<Kyc />} />
               <Route path="/report" element={<Report />} />
