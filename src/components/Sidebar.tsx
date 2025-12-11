@@ -29,14 +29,17 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     { name: "Loans", icon: <DollarSign size={18} />, href: "/loans" },
     { name: "Savings", icon: <PiggyBank size={18} />, href: "/savings" },
     { name: "Shares", icon: <Coins size={18} />, href: "/shares" },
+    {name: "Dividends", icon: <Coins size={18} />, href: "/dividends"}, 
     { name: "Upcoming Payments", icon: <DollarSign size={18} />, href: "/upcoming-payments"},
     { name: "Loan Repayment", icon: <DollarSign size={18} />, href: "/loan-repayments"},
+
+
     {
       name: "Transactions",
       icon: <Receipt size={18} />,
       href: "/transactions",
     },
-    { name: "KYC", icon: <Shield size={18} />, href: "/kyc" },
+    { name: "Expenses", icon: <Shield size={18} />, href: "/expenses" },
     { name: "Report", icon: <FileText size={18} />, href: "/report" },
     { name: "Users", icon: <Users size={18} />, href: "/user" },
     { name: "Settings", icon: <Settings size={18} />, href: "/settings" },

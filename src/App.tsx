@@ -35,6 +35,11 @@ import UpcomingPaymentsPage from "./screens/protected/upcomingPayments/UpcomingP
 import LoanRepaymentPage from "./screens/protected/loanRepayment/LoanRepaymentPage";
 import SharesPlansPage from "./screens/protected/shares/SharesProductSetting";
 import MemberShareAccountsPage from "./screens/protected/shares/Shares";
+import ExpensesManagementPage from "./screens/protected/expenses/Expenses";
+import AuditLogPage from "./screens/protected/auditLog/AuditLog";
+import DividendsPage from "./screens/protected/dividends/Dividends";
+import CreateLoanPage from "./screens/protected/loans/CreateLoan";
+import LoanDetailPage from "./screens/protected/loans/LoanViewDetails";
  
 function App() {
   const location = useLocation();
@@ -157,7 +162,9 @@ function App() {
               <Route path="/add-member" element={<AddMember />} />
               <Route path="/members/:id" element={<ViewMember />} />
               <Route path="/loans" element={<LoansPage />} />
-              <Route path="/loan-product" element={<LoanSettingsPage />} />
+              <Route path="/loans/create" element={<CreateLoanPage />} />
+              <Route path="/loans/:id" element={<LoanDetailPage /> } /> 
+              <Route path="/loan-products" element={<LoanSettingsPage />} />
               <Route path="/shares-plan" element={<SharesPlansPage />} />
               <Route path="/savings" element={<Savings />} />
               <Route path="/savings-products" element={<SavingsSettingsPage /> } /> 
@@ -170,6 +177,12 @@ function App() {
               <Route path="/user" element={<Users />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/upgrade" element={<UpgradePlan />} />
+
+              <Route path="/expenses" element={<ExpensesManagementPage /> } />
+
+              <Route path="/audit-logs" element={<AuditLogPage /> } />
+
+              <Route path="/dividends" element={<DividendsPage /> } /> 
 
 
               <Route path="/upcoming-payments" element={<UpcomingPaymentsPage />} /> 

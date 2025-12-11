@@ -51,7 +51,7 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
   // Fetch active shares plans
   const { data: plansResponse } = useQuery({
     queryKey: ["shares-plans"],
-    queryFn: () => apiClient.get(SHARESPLAN_API.LIST).then(res => res.data),
+    queryFn: () => apiClient.get(SHARESPLAN_API.LIST).then(res => res),
   });
 
   const plans: SharesPlan[] = plansResponse?.data?.plans || [];
@@ -61,7 +61,7 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
     queryKey: ["member-savings-accounts", selectedMember?.id],
     queryFn: () =>
       selectedMember
-        ? apiClient.get(`/api/members/${selectedMember.id}/savings-accounts`).then(res => res.data.data)
+        ? apiClient.get(`/api/members/${selectedMember.id}/savings-accounts`).then(res => res.data)
         : Promise.resolve([]),
     enabled: !!selectedMember,
   });
@@ -89,8 +89,10 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
       setSelectedPlan(null);
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || "Failed to purchase shares";
-      toast.error(message);
+
+      console.log(error)
+      const message = error?.message || "Failed to purchase shares";
+      toast.error("Error Occurred", {description: message } );
     },
   });
 
@@ -102,42 +104,34 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Member Search */}
-        <FormField
-          control={form.control}
-          name="member_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Member</FormLabel>
-              <FormControl>
-                <MemberSearchSelect 
-                  onSelect={(member) => {
-            setSelectedMember(member);
-            if (member) {
-              field.onChange(member.id); // Safe: member is not null
-              form.setValue("savings_account_id", undefined); // Reset savings account
-              form.setValue("shares_plan_id", undefined); // Optional: reset plan too
-              setSelectedPlan(null);
-            } else {
-              field.onChange(undefined); // Clear the field
-              form.setValue("savings_account_id", undefined);
-              form.setValue("shares_plan_id", undefined);
-              setSelectedPlan(null);
-            }
-          }}
-          onClear={() => {
-            setSelectedMember(null);
-            field.onChange(undefined);
-            form.setValue("savings_account_id", undefined);
-            form.setValue("shares_plan_id", undefined);
-            setSelectedPlan(null);
-          }}
-                  selectedMember={selectedMember}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Member Search */}
+<FormItem>
+  <FormLabel>Member</FormLabel>
+  <FormControl>
+    <MemberSearchSelect
+      value={selectedMember}
+      onChange={(member) => {
+        setSelectedMember(member);
+        if (member) {
+          form.setValue("member_id", member.id);
+          // Reset dependent fields
+          form.setValue("savings_account_id", undefined);
+          form.setValue("shares_plan_id", undefined);
+          setSelectedPlan(null);
+        } else {
+          form.setValue("member_id", undefined);
+          form.setValue("savings_account_id", undefined);
+          form.setValue("shares_plan_id", undefined);
+          setSelectedPlan(null);
+        }
+        // Trigger validation
+        form.trigger("member_id");
+      }}
+      placeholder="Type member name or ID..."
+    />
+  </FormControl>
+  <FormMessage />
+</FormItem>
 
         {/* Shares Plan */}
         <FormField
@@ -155,15 +149,15 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
                 disabled={!selectedMember}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full ">
                     <SelectValue placeholder="Select a shares plan" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent  >
                   {plans
                     .filter(plan => plan.is_active)
                     .map((plan) => (
-                      <SelectItem key={plan.id} value={plan.id.toString()}>
+                      <SelectItem key={plan.id} value={plan.id.toString()} >
                         <div>
                           <p className="font-medium">{plan.name}</p>
                           <p className="text-xs text-gray-500">
@@ -195,7 +189,7 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
                 disabled={!selectedMember || savingsAccounts.length === 0}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={
                       savingsAccounts.length === 0
                         ? "No savings accounts found"

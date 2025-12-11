@@ -65,9 +65,12 @@ export const LOANPRODUCT_API = {
  DELETE : (id: string | number) => `${API_BASE}/api/loan-products/${id}`,
  QUOTA : `${API_BASE}/api/loan-products-quota`,
  TOGGLE : (id: string | number ) => `${API_BASE}/api/loan-products/${id}/toggle`,
+  
+}
 
- 
-
+export const LOAN_API = { 
+  LIST : `${API_BASE}/api/loans`,
+  CREATE : `${API_BASE}/api/loans`
 }
 export const SAVINGPRODUCT_API = { 
  LIST : `${API_BASE}/api/savings-products`,
@@ -132,8 +135,14 @@ export const MEMBER_SHARE_ACCOUNT_API = {
   QUOTA: "/api/member-share-accounts-quota",
   CREATE: "/api/member-share-accounts",
   TOGGLE: (id: number) => `/api/member-share-accounts/${id}/toggle`,
+  TRANSACTIONS: (id: number) => `/api/member-share-accounts/${id}/transactions`,
 };
 
+
+export const DIVIDEND_API = {
+  LIST: "/api/dividends",
+  PAY: (id: number) => `/api/dividends/${id}/pay`,
+};
 
 
 

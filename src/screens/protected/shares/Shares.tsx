@@ -1,7 +1,7 @@
 // src/pages/shares/accounts/index.tsx
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Share2, Users, DollarSign, Search, Download, AlertCircle } from "lucide-react";
+import { Plus, Share2, Users, DollarSign, Search, Download, AlertCircle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -14,6 +14,7 @@ import { MEMBER_SHARE_ACCOUNT_API } from "@/constants";
 import PurchaseSharesForm from "./PurchaseSharesForm";
 import { useNavigate } from "react-router-dom";
 import type { MemberShareAccount } from "@/types/memberShareAccount.type";
+import ShareAccountTransactionModal from "./ShareAccountTransactionModal";
 
 export default function MemberShareAccountsPage() {
   const navigate = useNavigate();
@@ -24,13 +25,13 @@ export default function MemberShareAccountsPage() {
   // Fetch quota
   const { data: quota } = useQuery({
     queryKey: ["member-share-accounts-quota"],
-    queryFn: () => apiClient.get(MEMBER_SHARE_ACCOUNT_API.QUOTA).then(res => res.data),
+    queryFn: () => apiClient.get(MEMBER_SHARE_ACCOUNT_API.QUOTA).then(res => res),
   });
 
   // Fetch accounts
   const { data: response, isLoading } = useQuery({
     queryKey: ["member-share-accounts"],
-    queryFn: () => apiClient.get(MEMBER_SHARE_ACCOUNT_API.LIST).then(res => res.data),
+    queryFn: () => apiClient.get(MEMBER_SHARE_ACCOUNT_API.LIST).then(res => res),
   });
 
   const accounts: MemberShareAccount[] = response?.data?.accounts || [];
@@ -41,7 +42,7 @@ export default function MemberShareAccountsPage() {
     acc.member.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     acc.member.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     acc.member.member_number.includes(searchTerm) ||
-    acc.sharesPlan.name.toLowerCase().includes(searchTerm.toLowerCase())
+    acc.shares_plan.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Stats
@@ -50,23 +51,23 @@ export default function MemberShareAccountsPage() {
 
   const canCreate = quotaData?.can_create_more ?? true;
 
+
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
   return (
     <div className="py-5 lg:p-8 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-black flex items-center gap-3">
-            <Share2 className="w-8 h-8" />
-            Member Share Accounts
-          </h1>
-          <p className="text-sm text-gray-600">Track member share holdings and capital contributions</p>
-        </div>
-        <div className="flex items-center gap-4">
-          {quotaData && (
+        {quotaData && (
             <div className="text-sm text-gray-600 border border-gray-300 px-4 py-2 rounded-md bg-white">
               {quotaData.used} / {quotaData.limit} accounts
             </div>
           )}
+        </div>
+        <div className="flex items-center gap-4">
+         
           <Button
             onClick={() => setOpen(true)}
             disabled={!canCreate}
@@ -161,6 +162,7 @@ export default function MemberShareAccountsPage() {
                     <TableHead>Value</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Linked Savings</TableHead>
+                    <TableHead> Action </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -179,7 +181,7 @@ export default function MemberShareAccountsPage() {
                             <p className="text-sm text-gray-500">#{acc.member.member_number}</p>
                           </div>
                         </TableCell>
-                        <TableCell>{acc.sharesPlan.name}</TableCell>
+                        <TableCell>{acc.shares_plan.name}</TableCell>
                         <TableCell>{acc.total_units}</TableCell>
                         <TableCell>₦{parseFloat(acc.total_value.toString()).toLocaleString()}</TableCell>
                         <TableCell>
@@ -188,8 +190,24 @@ export default function MemberShareAccountsPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm text-gray-600">
-                          {acc.savingsAccount?.account_number || "—"}
+                          {acc.savings_account?.account_number || "—"}
                         </TableCell>
+
+                        <TableCell>
+  <div className="flex items-center gap-2">
+    {/* ... existing buttons ... */}
+    <Button
+      size="sm"
+      variant="ghost"
+      onClick={() => {
+        setSelectedAccountId(acc.id);
+        setHistoryOpen(true);
+      }}
+    >
+      <FileText className="w-4 h-4" /> History
+    </Button>
+  </div>
+</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -225,7 +243,7 @@ export default function MemberShareAccountsPage() {
               <CardContent className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Plan</span>
-                  <span className="font-medium">{acc.sharesPlan.name}</span>
+                  <span className="font-medium">{acc.shares_plan.name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Units</span>
@@ -237,8 +255,23 @@ export default function MemberShareAccountsPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Linked Savings</span>
-                  <span>{acc.savingsAccount?.account_number || "—"}</span>
+                  <span>{acc.savings_account?.account_number || "—"}</span>
                 </div>
+
+                <div className="pt-4 flex gap-2 border-t">
+  {/* ... existing buttons ... */}
+  <Button
+    size="sm"
+    variant="outline"
+    onClick={() => {
+      setSelectedAccountId(acc.id);
+      setHistoryOpen(true);
+    }}
+    className="flex-1"
+  >
+    <FileText className="w-4 h-4 mr-1" /> History
+  </Button>
+</div>
               </CardContent>
             </Card>
           ))
@@ -261,6 +294,16 @@ export default function MemberShareAccountsPage() {
           />
         </DialogContent>
       </Dialog>
+
+
+      <ShareAccountTransactionModal
+  accountId={selectedAccountId!}
+  open={historyOpen}
+  onOpenChange={(open) => {
+    setHistoryOpen(open);
+    if (!open) setSelectedAccountId(null);
+  }}
+/>
     </div>
   );
 }
