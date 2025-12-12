@@ -1,7 +1,7 @@
 // src/pages/loans/[id].tsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, X, FileText, DollarSign, User, Calendar, AlertCircle, File, CreditCard, Eye, XCircle  } from "lucide-react";
+import { ArrowLeft, Check, X, FileText, DollarSign, User, Calendar, AlertCircle, File, CreditCard, Eye, XCircle, Image, Download, Plus  } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,12 +11,28 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { queryClient } from "@/lib/queryClient";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { MemberSearchSelect } from "@/screens/Components/MemberSearchSelect";
  
 export default function LoanDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [scheduleOpen, setScheduleOpen] = useState(false);
+
+  const [docModalOpen, setDocModalOpen] = useState(false);
+const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+const [addGuarantorOpen, setAddGuarantorOpen] = useState(false);
+
+const openDocument = (path: string) => {
+  setSelectedDoc(path);
+  setDocModalOpen(true);
+};
+
+const getFileTypeIcon = (path: string) => {
+  const ext = path.split('.').pop()?.toLowerCase();
+  return ext === 'pdf' ? <FileText className="w-12 h-12" /> : <Image className="w-12 h-12" />;
+};
 
   const { data: loan, isLoading } = useQuery({
     queryKey: ["loan", id],
@@ -29,12 +45,42 @@ export default function LoanDetailPage() {
       toast.success("Loan approved!");
       queryClient.invalidateQueries({ queryKey: ["loan", id] });
     },
+    onError: (err: any) => toast.error(err.message || "Loan Approval Failed"),
   });
 
   const declineMutation = useMutation({
     mutationFn: () => apiClient.post(`/api/loans/${id}/decline`),
     onSuccess: () => {
       toast.success("Loan declined");
+      queryClient.invalidateQueries({ queryKey: ["loan", id] });
+    },
+  });
+
+
+
+  const addGuarantorMutation = useMutation({
+    mutationFn: (data: { loan_id: number; member_id: number }) =>
+      apiClient.post(`/api/loans/${data.loan_id}/add-guarantor`, data),
+    onSuccess: () => {
+      toast.success("Guarantor added");
+      queryClient.invalidateQueries({ queryKey: ["loan", id] });
+    },
+  });
+  
+  const acceptGuarantorMutation = useMutation({
+    mutationFn: (guarantorId: number) =>
+      apiClient.post(`/api/loan-guarantors/${guarantorId}/accept`),
+    onSuccess: () => {
+      toast.success("Guarantor accepted");
+      queryClient.invalidateQueries({ queryKey: ["loan", id] });
+    },
+  });
+  
+  const rejectGuarantorMutation = useMutation({
+    mutationFn: (guarantorId: number) =>
+      apiClient.post(`/api/loan-guarantors/${guarantorId}/reject`),
+    onSuccess: () => {
+      toast.success("Guarantor rejected");
       queryClient.invalidateQueries({ queryKey: ["loan", id] });
     },
   });
@@ -71,6 +117,13 @@ export default function LoanDetailPage() {
   const formatCurrency = (amount: number) => 
     new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
 
+
+  
+
+
+
+
+  
   const getFileName = (path: string) => path.split('/').pop() || path;
 
   return (
@@ -151,83 +204,184 @@ export default function LoanDetailPage() {
       </div>
 
       {/* Guarantors */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Guarantors</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loan.guarantors?.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Member ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Accepted</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loan.guarantors.map((g: any) => (
-                  <TableRow key={g.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs">
-                          {g.member.first_name[0]}{g.member.last_name[0]}
-                        </div>
-                        <span>{g.member.first_name} {g.member.last_name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>#{g.member.member_number}</TableCell>
-                    <TableCell>{getStatusBadge(g.status)}</TableCell>
-                    <TableCell>
-                      {g.accepted_at ? new Date(g.accepted_at).toLocaleDateString() : "Pending"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <p className="text-center text-gray-500 py-8">No guarantors required or assigned</p>
-          )}
-        </CardContent>
-      </Card>
+  {/* Guarantors Section */}
+<Card>
+  <CardHeader className="flex flex-row items-center justify-between">
+    <div className="flex items-center gap-3">
+      <CardTitle>Guarantors</CardTitle>
+      {loan.product.guarantor_required && (
+        <Badge variant="destructive">Required</Badge>
+      )}
+    </div>
+
+    {/* Add Guarantor Button */}
+    {loan.status === "pending" && (
+      <Button size="sm" onClick={() => setAddGuarantorOpen(true)}>
+        <Plus className="w-4 h-4 mr-2" />
+        Add Guarantor
+      </Button>
+    )}
+  </CardHeader>
+
+  <CardContent>
+    {loan.guarantors?.length > 0 ? (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Guarantor</TableHead>
+            <TableHead>Phone</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {loan.guarantors.map((g: any) => {
+            const isPending = g.status === "pending";
+            const isAccepted = g.status === "accepted";
+            const isRejected = g.status === "rejected";
+
+            return (
+              <TableRow key={g.id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center text-sm font-medium">
+                      {g.member.first_name[0]}{g.member.last_name[0]}
+                    </div>
+                    <div>
+                      <p className="font-medium">{g.member.first_name} {g.member.last_name}</p>
+                      <p className="text-xs text-gray-500">#{g.member.member_number}</p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>{g.member.phone || "—"}</TableCell>
+                <TableCell>
+                  {isAccepted && <Badge className="bg-green-600">Accepted</Badge>}
+                  {isRejected && <Badge variant="destructive">Rejected</Badge>}
+                  {isPending && <Badge variant="secondary">Pending</Badge>}
+                </TableCell>
+                <TableCell className="text-right">
+                  {isPending && loan.status === "pending" && (
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() => acceptGuarantorMutation.mutate(g.id)}
+                        disabled={acceptGuarantorMutation.isPending}
+                      >
+                        <Check className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => rejectGuarantorMutation.mutate(g.id)}
+                        disabled={rejectGuarantorMutation.isPending}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                  {isAccepted && <span className="text-green-600 text-sm font-medium">Confirmed</span>}
+                  {isRejected && <span className="text-red-600 text-sm font-medium">Declined</span>}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    ) : (
+      <div className="text-center py-8 text-gray-500">
+        No guarantors assigned yet
+      </div>
+    )}
+  </CardContent>
+</Card>
+
+{/* Add Guarantor Modal */}
+<Dialog open={addGuarantorOpen} onOpenChange={setAddGuarantorOpen}>
+  <DialogContent className="max-w-md">
+    <DialogHeader>
+      <DialogTitle>Add Guarantor</DialogTitle>
+    </DialogHeader>
+    <div className="space-y-4">
+      <MemberSearchSelect
+        value={null}
+        onChange={(member) => {
+          if (member) {
+            addGuarantorMutation.mutate({ loan_id: loan.id, member_id: member.id });
+            setAddGuarantorOpen(false);
+          }
+        }}
+        placeholder="Search member to add as guarantor..."
+      />
+    </div>
+  </DialogContent>
+</Dialog>
+
+
 
       {/* Attached Documents */}
       <Card>
-        <CardHeader>
-          <CardTitle>Supporting Documents</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loan.documents && loan.documents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {loan.documents.map((path: string, index: number) => (
-                <Card key={index} className="overflow-hidden">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <File className="w-8 h-8 text-gray-600" />
-                        <div>
-                          <p className="font-medium text-sm">{getFileName(path)}</p>
-                          <p className="text-xs text-gray-500">Document {index + 1}</p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => window.open(`/storage/${path}`, '_blank')}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+  <CardHeader>
+    <CardTitle>Supporting Documents</CardTitle>
+  </CardHeader>
+  <CardContent>
+    {loan.documents && loan.documents.length > 0 ? (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap- gap-6">
+        {loan.documents.map((path: string, index: number) => {
+          const fileName = path.split('/').pop() || `Document ${index + 1}`;
+          const isPdf = path.toLowerCase().endsWith('.pdf');
+          const previewUrl = `http://10.28.212.236:8000/storage/${path}`;
+
+          return (
+            <div
+              key={index}
+              className="group relative bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-gray-400 transition-all duration-300 cursor-pointer"
+              onClick={() => openDocument(previewUrl)}
+            >
+              {/* Document Preview */}
+              <div className="aspect-video bg-white flex items-center justify-center">
+                {isPdf ? (
+                  <FileText className="w-16 h-16 text-red-600" />
+                ) : (
+                  <img
+                    src={previewUrl}
+                    alt={fileName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                )}
+                <div className="hidden">
+                  <Image className="w-16 h-16 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <Eye className="w-10 h-10 text-white" />
+                </div>
+              </div>
+
+              {/* File Info */}
+              <div className="p-4">
+                <p className="text-sm font-medium text-gray-900 truncate">{fileName}</p>
+                <p className="text-xs text-gray-500 mt-1">Click to view</p>
+              </div>
             </div>
-          ) : (
-            <p className="text-center text-gray-500 py-8">No documents uploaded</p>
-          )}
-        </CardContent>
-      </Card>
+          );
+        })}
+      </div>
+    ) : (
+      <div className="text-center py-12 text-gray-500">
+        <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+        <p>No documents uploaded</p>
+      </div>
+    )}
+  </CardContent>
+</Card>
 
       {/* Repayment Schedule */}
       <Card>
@@ -276,8 +430,8 @@ export default function LoanDetailPage() {
         <div className="flex gap-4">
           <Button onClick={() => approveMutation.mutate()} disabled={approveMutation.isPending} className="bg-green-600 hover:bg-green-700">
             <Check className="w-4 h-4 mr-2" />
-            Approve Loan
-          </Button>
+            Approve & Disburse Loan
+                      </Button>
           <Button variant="destructive" onClick={() => declineMutation.mutate()} disabled={declineMutation.isPending}>
             <XCircle className="w-4 h-4 mr-2" />
             Decline Loan
@@ -319,6 +473,55 @@ export default function LoanDetailPage() {
           </Table>
         </DialogContent>
       </Dialog>
+
+
+      <Dialog open={docModalOpen} onOpenChange={setDocModalOpen}>
+  <DialogContent className="max-w-5xl max-h-[95vh] p-0 overflow-hidden">
+    {selectedDoc && (
+      <>
+        <DialogHeader className="absolute top-0 left-0 right-0 z-10 bg-white border-b px-6 py-4 flex justify-between items-center">
+          <DialogTitle>Document Viewer</DialogTitle>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = selectedDoc;
+                link.download = selectedDoc.split('/').pop() || 'document';
+                link.click();
+              }}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setDocModalOpen(false)}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </DialogHeader>
+
+        <div className="mt-16 h-[80vh]">
+          {selectedDoc.toLowerCase().endsWith('.pdf') ? (
+            <iframe
+              src={selectedDoc}
+              className="w-full h-full border-0"
+              title="PDF Viewer"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <img
+                src={selectedDoc}
+                alt="Document"
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          )}
+        </div>
+      </>
+    )}
+  </DialogContent>
+</Dialog>
     </div>
   );
 }

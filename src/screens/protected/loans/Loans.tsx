@@ -66,7 +66,7 @@ export default function LoansPage() {
 
   const stats = {
     total: loans.length,
-    active: loans.filter((l: any) => l.status === "disbursed").length,
+    active: loans.filter((l: any) => l.status === "disbursed" || "active").length,
     pending: loans.filter((l: any) => l.status === "pending").length,
     defaulted: loans.filter((l: any) => l.status === "defaulted").length,
   };
@@ -184,7 +184,7 @@ export default function LoansPage() {
             <CheckCircle className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.active}</div>
+            <div className="text-2xl font-bold">{usage && (usage.active_loans)}</div>
             <p className="text-xs text-muted-foreground">Currently disbursed</p>
           </CardContent>
         </Card>
