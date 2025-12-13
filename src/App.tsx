@@ -3,7 +3,6 @@ import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Member from "./pages/Member";
 import Loans from "./pages/Loans";
-import Savings from "./pages/Savings";
 import Shares from "./pages/Shares";
 import Transactions from "./pages/Transactions";
 import Kyc from "./pages/Kyc";
