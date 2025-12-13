@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLocation, Link, useNavigate, href } from "react-router-dom";
 import {
   Home,
   Users,
@@ -29,12 +29,17 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     { name: "Loans", icon: <DollarSign size={18} />, href: "/loans" },
     { name: "Savings", icon: <PiggyBank size={18} />, href: "/savings" },
     { name: "Shares", icon: <Coins size={18} />, href: "/shares" },
+    {name: "Dividends", icon: <Coins size={18} />, href: "/dividends"}, 
+    { name: "Upcoming Payments", icon: <DollarSign size={18} />, href: "/upcoming-payments"},
+    { name: "Loan Repayment", icon: <DollarSign size={18} />, href: "/loan-repayments"},
+
+
     {
       name: "Transactions",
       icon: <Receipt size={18} />,
       href: "/transactions",
     },
-    { name: "KYC", icon: <Shield size={18} />, href: "/kyc" },
+    { name: "Expenses", icon: <Shield size={18} />, href: "/expenses" },
     { name: "Report", icon: <FileText size={18} />, href: "/report" },
     { name: "Users", icon: <Users size={18} />, href: "/user" },
     { name: "Settings", icon: <Settings size={18} />, href: "/settings" },
@@ -84,13 +89,13 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-4 py-2 rounded-lg font-semibold transition ${
                     isActive
-                      ? "bg-gray-800 text-white"
+                      ? "bg-gray-800 text-gray-50"
                       : "text-gray-400 hover:bg-gray-800 hover:text-white"
                   }`}
                 >
                   <span
                     className={`${
-                      isActive ? "text-primary" : "text-gray-500"
+                      isActive ? "text-gray-50" : "text-gray-500"
                     } transition`}
                   >
                     {item.icon}

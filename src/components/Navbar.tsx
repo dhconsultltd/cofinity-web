@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Menu, Moon, Sun, User, LogOut, Building2, Settings } from "lucide-react";
+import { Bell, Menu, Moon, Sun, User, LogOut, Building2, Settings, NotebookPen } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -125,6 +125,17 @@ export default function Navbar({ setSidebarOpen, title }: NavbarProps) {
                 <User className="mr-2 h-4 w-4" />
                 <span>Account Settings</span>
               </DropdownMenuItem>
+
+
+              <DropdownMenuItem
+                onClick={() => navigate("/audit-logs")}
+                className="cursor-pointer"
+              >
+                <NotebookPen className="mr-2 h-4 w-4" />
+                <span>Audit Log</span>
+              </DropdownMenuItem>
+
+
 
               <DropdownMenuItem
                 onClick={() => navigate("/cooperative-selection")}

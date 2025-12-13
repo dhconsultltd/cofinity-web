@@ -39,8 +39,7 @@ export default function Members() {
     },
   });
 
-  console.log(data)
-
+ 
   const members: Member[] = data?.members?.data || [];
   const pagination = data?.members;
   const quota = data?.quota;
@@ -69,6 +68,10 @@ export default function Members() {
   const handleadd = () => { 
 
     navigate('/add-member')
+  }
+
+  const handleviewmember = (id:number) => { 
+    navigate(`/members/${id}`)
   }
 
   return (
@@ -160,9 +163,10 @@ export default function Members() {
               <p className="text-neutral-600">Try adjusting your search</p>
             </div>
           ) : (
-            <Table>
+            <Table  >
               <TableHeader>
                 <TableRow>
+                  <TableHead> S/N  </TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>ID</TableHead>
                   <TableHead>Type</TableHead>
@@ -173,8 +177,9 @@ export default function Members() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredMembers.map((member) => (
+                {filteredMembers.map((member, i) => (
                   <TableRow key={member.id}>
+                    <TableCell >{ i + 1 }</TableCell>
                     <TableCell className="font-medium">
                       {member.first_name} {member.last_name}
                     </TableCell>
@@ -194,8 +199,8 @@ export default function Members() {
                       {format(new Date(member.created_at), "MMM d, yyyy")}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="w-4 h-4" />
+                      <Button variant="primary" size="sm" onClick={()=> handleviewmember(member.id) }>
+                        View <Eye className="w-4 h-4" />
                       </Button>
                     </TableCell>
                   </TableRow>

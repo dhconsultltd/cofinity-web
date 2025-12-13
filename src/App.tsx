@@ -29,6 +29,21 @@ import ProtectedRoute from "./screens/ProtectedRoute";
 import BranchesManagement from "./screens/protected/branches/Branches";
 import Members from "./screens/protected/members/Members";
 import AddMember from "./screens/protected/members/AddMember";
+import ViewMember from "./screens/protected/members/member/View";
+import LoansPage from "./screens/protected/loans/Loans";
+import LoanSettingsPage from "./screens/protected/loans/LoanPageSetting";
+import SavingsSettingsPage from "./screens/protected/savings/SavingsSettingPage";
+import Savings from "./screens/protected/savings/Savings";
+import SavingsAccountDetail from "./screens/protected/savings/SavingsAccountDetail";
+import UpcomingPaymentsPage from "./screens/protected/upcomingPayments/UpcomingPaymentsPage";
+import LoanRepaymentPage from "./screens/protected/loanRepayment/LoanRepaymentPage";
+import SharesPlansPage from "./screens/protected/shares/SharesProductSetting";
+import MemberShareAccountsPage from "./screens/protected/shares/Shares";
+import ExpensesManagementPage from "./screens/protected/expenses/Expenses";
+import AuditLogPage from "./screens/protected/auditLog/AuditLog";
+import DividendsPage from "./screens/protected/dividends/Dividends";
+import CreateLoanPage from "./screens/protected/loans/CreateLoan";
+import LoanDetailPage from "./screens/protected/loans/LoanViewDetails";
 
 function App() {
   const location = useLocation();
@@ -149,15 +164,41 @@ function App() {
               <Route path="/branches" element={<BranchesManagement />} />
               <Route path="/members" element={<Members />} />
               <Route path="/add-member" element={<AddMember />} />
-              <Route path="/loans" element={<Loans />} />
+              <Route path="/members/:id" element={<ViewMember />} />
+              <Route path="/loans" element={<LoansPage />} />
+              <Route path="/loans/create" element={<CreateLoanPage />} />
+              <Route path="/loans/:id" element={<LoanDetailPage />} />
+              <Route path="/loan-products" element={<LoanSettingsPage />} />
+              <Route path="/shares-plan" element={<SharesPlansPage />} />
               <Route path="/savings" element={<Savings />} />
-              <Route path="/shares" element={<Shares />} />
+              <Route
+                path="/savings-products"
+                element={<SavingsSettingsPage />}
+              />
+              <Route
+                path="/savings/accounts/:id"
+                element={<SavingsAccountDetail />}
+              />
+
+              <Route path="/shares" element={<MemberShareAccountsPage />} />
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/kyc" element={<Kyc />} />
               <Route path="/report" element={<Report />} />
               <Route path="/user" element={<Users />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/upgrade" element={<UpgradePlan />} />
+
+              <Route path="/expenses" element={<ExpensesManagementPage />} />
+
+              <Route path="/audit-logs" element={<AuditLogPage />} />
+
+              <Route path="/dividends" element={<DividendsPage />} />
+
+              <Route
+                path="/upcoming-payments"
+                element={<UpcomingPaymentsPage />}
+              />
+              <Route path="/loan-repayments" element={<LoanRepaymentPage />} />
 
               {/* <Route
               path="/cooperative-selection"
