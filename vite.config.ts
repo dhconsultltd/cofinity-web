@@ -11,12 +11,12 @@ export default defineConfig({
   server: {
     proxy: {
       "/sanctum": {
-        target: "http://cofinity.beejett.com",
+        target: "https://cofinity.beejett.com",
         changeOrigin: true,
         secure: false,
       },
       "/api": {
-        target: "http://cofinity.beejett.com",
+        target: "https://cofinity.beejett.com",
         changeOrigin: true,
         secure: false,
       },
