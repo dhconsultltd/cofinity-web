@@ -1,8 +1,14 @@
 // src/context/AuthContext.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { useLocation } from "react-router-dom";  // ← ADD THIS IMPORT
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { useLocation } from "react-router-dom"; // ← ADD THIS IMPORT
 import api from "@/lib/axios";
 import { fetchCsrfToken } from "@/lib/sanctum";
 import { AUTH_API } from "@/constants/api";
@@ -24,7 +30,9 @@ type AuthContextValue = AuthState & {
   refetchUser: () => Promise<void>;
 };
 
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined
+);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -34,16 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   });
 
-  const location = useLocation();  // ← ADD THIS
+  const location = useLocation(); // ← ADD THIS
   const queryClient = useQueryClient();
 
   // ← ADD THIS: Guest pages where we DON'T fetch user
-  const guestPaths = [
-    "/login",
-    "/signup", 
-    "/verify-email",
-  
-  ];
+  const guestPaths = ["/login", "/signup", "/verify-email"];
 
   const isGuestPath = guestPaths.includes(location.pathname);
 
@@ -51,10 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUser = async () => {
     try {
       const response = await api.get(AUTH_API.ME);
-      const { user,tenants } = response.data;
-
-
-        
+      const { user, tenants } = response.data;
 
       setState({
         user,
@@ -82,8 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await fetchCsrfToken();
     await api.post(AUTH_API.LOGIN, { email, password });
 
-      await fetchUser();  
- 
+    await fetchUser();
+
     queryClient.invalidateQueries();
   };
 
@@ -110,7 +110,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isGuestPath) {
       // On guest pages, don't fetch user, just show loading briefly
       setTimeout(() => {
-        setState(prev => ({ ...prev, isLoading: false, isAuthenticated: false }));
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          isAuthenticated: false,
+        }));
       }, 500);
     } else {
       // On protected pages, fetch user
