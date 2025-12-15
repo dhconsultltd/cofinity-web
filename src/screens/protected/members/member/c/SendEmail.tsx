@@ -12,9 +12,21 @@ import { apiClient } from "@/lib/api-client";
 import { MEMBERS_API } from "@/constants";
 
 const templates = [
-  { name: "Welcome Message", subject: "Welcome to the Cooperative!", body: "Dear {name},\n\nWelcome to our cooperative family! We're excited to have you..." },
-  { name: "Savings Reminder", subject: "Monthly Savings Reminder", body: "Hi {name},\n\nThis is a friendly reminder to complete your monthly savings of ₦{target}..." },
-  { name: "Loan Approval", subject: "Your Loan Has Been Approved!", body: "Congratulations {name}!\n\nYour loan of ₦{amount} has been approved and disbursed..." },
+  {
+    name: "Welcome Message",
+    subject: "Welcome to the Cooperative!",
+    body: "Dear {name},\n\nWelcome to our cooperative family! We're excited to have you...",
+  },
+  {
+    name: "Savings Reminder",
+    subject: "Monthly Savings Reminder",
+    body: "Hi {name},\n\nThis is a friendly reminder to complete your monthly savings of ₦{target}...",
+  },
+  {
+    name: "Loan Approval",
+    subject: "Your Loan Has Been Approved!",
+    body: "Congratulations {name}!\n\nYour loan of ₦{amount} has been approved and disbursed...",
+  },
 ];
 
 export default function SendEmail({ member }: { member: any }) {
@@ -22,7 +34,8 @@ export default function SendEmail({ member }: { member: any }) {
   const [message, setMessage] = useState("");
 
   const sendEmail = useMutation({
-    mutationFn: () => apiClient.post(MEMBERS_API.SENDEMAIL(member.id), { subject, message }),
+    mutationFn: () =>
+      apiClient.post(MEMBERS_API.SENDEMAIL(member.id), { subject, message }),
     onSuccess: () => {
       toast.success("Email sent successfully!");
       setSubject("");
@@ -31,68 +44,74 @@ export default function SendEmail({ member }: { member: any }) {
     onError: () => toast.error("Failed to send email"),
   });
 
-  const applyTemplate = (template: typeof templates[0]) => {
+  const applyTemplate = (template: (typeof templates)[0]) => {
     setSubject(template.subject.replace("{name}", member.first_name));
-    setMessage(template.body
-      .replace("{name}", member.first_name)
-      .replace("{target}", Number(member.monthly_savings_target || 0).toLocaleString())
+    setMessage(
+      template.body
+        .replace("{name}", member.first_name)
+        .replace(
+          "{target}",
+          Number(member.monthly_savings_target || 0).toLocaleString()
+        )
     );
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <Mail className="w-10 h-10 text-blue-600" />
+    <div className="max-w-4xl mx-auto space-y-6 px-4 sm:px-6 md:px-0">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
+            <Mail className="w-8 h-8 sm:w-10 sm:h-10 text-black" />
             Send Email
           </h2>
-          <p className="text-neutral-600 mt-1">Communicate directly with {member.first_name}</p>
+          <p className="text-neutral-600 text-sm sm:text-base">
+            Communicate directly with {member.first_name}
+          </p>
         </div>
-        <div className="text-right">
-          <Badge variant="outline" className="text-lg px-4 py-2">
-            <User className="w-4 h-4 mr-2" />
-            {member.email || "No email"}
-          </Badge>
-        </div>
+
+        <Badge className="text-sm sm:text-base py-2 px-3 flex items-center gap-2 whitespace-nowrap">
+          <User className="w-4 h-4" />
+          {member.email || "No email"}
+        </Badge>
       </div>
 
-      <Card className="p-8 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 border-blue-200 shadow-xl">
+      <Card className="p-4 sm:p-6 md:p-8 bg-gray-50 border-gray-100 shadow-sm">
         <div className="space-y-6">
           {/* To */}
           <div>
-            <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
-              <User className="w-4 h-4" />
-              To
-            </label>
-            <Input value={member.email || "No email address"} disabled className="mt-2 bg-white" />
+            <label className="label">To</label>
+            <Input
+              value={member.email || "No email address"}
+              disabled
+              className="mt-2"
+            />
           </div>
 
           {/* Subject */}
           <div>
-            <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              Subject
-            </label>
+            <label className="label">Subject</label>
             <Input
               value={subject}
-              onChange={e => setSubject(e.target.value)}
+              onChange={(e) => setSubject(e.target.value)}
               placeholder="Enter email subject..."
-              className="mt-2 text-lg"
+              className="mt-2 text-base sm:text-lg"
             />
           </div>
 
-          {/* Quick Templates */}
+          {/* Templates */}
           <div>
-            <p className="text-sm font-semibold text-neutral-700 mb-3">Quick Templates</p>
-            <div className="flex flex-wrap gap-3">
-              {templates.map(t => (
+            <p className="text-sm font-semibold mb-3 text-neutral-700">
+              Quick Templates
+            </p>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              {templates.map((t) => (
                 <Button
                   key={t.name}
                   variant="outline"
                   size="sm"
                   onClick={() => applyTemplate(t)}
-                  className="hover:bg-blue-50"
+                  className="hover:bg-blue-50 text-sm"
                 >
                   {t.name}
                 </Button>
@@ -102,45 +121,48 @@ export default function SendEmail({ member }: { member: any }) {
 
           {/* Message */}
           <div>
-            <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
-              <Smile className="w-4 h-4" />
-              Message
-            </label>
+            <label className="label">Message</label>
             <Textarea
               value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder="Type your message here..."
-              rows={12}
-              className="mt-2 text-base leading-relaxed resize-none"
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your message..."
+              rows={10}
+              className="mt-2 text-sm sm:text-base leading-relaxed"
             />
-            <div className="flex justify-between items-center mt-3 text-sm text-neutral-500">
-              <div className="flex gap-4">
-                <Button variant="ghost" size="sm" disabled><Paperclip className="w-4 h-4 mr-2" />Attach</Button>
-                <Button variant="ghost" size="sm" disabled><Smile className="w-4 h-4" />Emoji</Button>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 text-sm text-neutral-500 gap-3">
+              <div className="flex gap-3 flex-wrap">
+                <Button variant="ghost" size="sm" disabled>
+                  <Paperclip className="w-4 h-4 mr-1" /> Attach
+                </Button>
+                <Button variant="ghost" size="sm" disabled>
+                  <Smile className="w-4 h-4 mr-1" /> Emoji
+                </Button>
               </div>
-              <span>{message.length} characters</span>
+              <span className="text-xs sm:text-sm">
+                {message.length} characters
+              </span>
             </div>
           </div>
 
-          {/* Send Button */}
-          <div className="flex justify-end gap-4 pt-6 border-t">
-            <Button variant="outline" size="lg">Save as Draft</Button>
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              Save as Draft
+            </Button>
             <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
+              size="sm"
+              className="bg-black hover:bg-gray-800 text-white shadow-md w-full sm:w-auto"
               onClick={() => sendEmail.mutate()}
               disabled={!subject || !message || sendEmail.isPending}
             >
               {sendEmail.isPending ? (
-                <>
-                  <Clock className="w-5 h-5 mr-2 animate-spin" />
-                  Sending...
-                </>
+                <span className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 animate-spin" /> Sending...
+                </span>
               ) : (
-                <>
-                  <Send className="w-5 h-5 mr-2" />
-                  Send Email
-                </>
+                <span className="flex items-center gap-2">
+                  <Send className="w-4 h-4" /> Send Email
+                </span>
               )}
             </Button>
           </div>
@@ -149,3 +171,6 @@ export default function SendEmail({ member }: { member: any }) {
     </div>
   );
 }
+
+// Reusable small label styling
+const label = "text-sm font-semibold text-neutral-700 flex items-center gap-2";

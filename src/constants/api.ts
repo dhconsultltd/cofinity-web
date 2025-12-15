@@ -1,11 +1,9 @@
 // src/constants/api.ts
 
- 
 // Use Vite's `import.meta.env` in the browser instead of `process.env` (Next.js style).
 const env = import.meta.env as Record<string, string | undefined>;
 
-
-console.log(env)
+console.log(env);
 
 export const API_BASE = env.VITE_API_URL ?? env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -31,100 +29,96 @@ export const AUTH_API = {
 export const TENANT_API = {
   TENANT: `${API_BASE}/api/tenant`,
   CREATE_TENANT: `${API_BASE}/api/tenants/create`,
-  TENANT_STATUS: (id: string | number) => `${API_BASE}/api/tenants/${id}/status`,
-  SWITCH:  `${API_BASE}/api/tenants/switch`,
+  TENANT_STATUS: (id: string | number) =>
+    `${API_BASE}/api/tenants/${id}/status`,
+  SWITCH: `${API_BASE}/api/tenants/switch`,
 };
 
 // Usage:
- 
 
-export const APIS = { 
+export const APIS = {
   GET_PLANS: `${API_BASE}/api/plans`,
   SUBSCRIPTION: `${API_BASE}/api/subscription`,
-  SUBSCRIPTION_INITIATE: `${API_BASE}/api/subscription/initiate`
-}
+  SUBSCRIPTION_INITIATE: `${API_BASE}/api/subscription/initiate`,
+};
 
 // Members
 export const MEMBERS_API = {
   LIST: `${API_BASE}/api/members`,
-   CREATE: `${API_BASE}/api/members`,
+  CREATE: `${API_BASE}/api/members`,
   SHOW: (id: string | number) => `${API_BASE}/api/members/${id}`,
   UPDATE: (id: string | number) => `${API_BASE}/api/members/${id}`,
-  TRANSACTIONS: (id: string| number) => `${API_BASE}/api/members/${id}/transactions`,
-  LOANS:(id: string | number ) => `${API_BASE}/api/members/${id}/loans`,
-  KYCUPLOAD: (id: string| number) => `${API_BASE}/api/members/${id}/kyc`,
+  TRANSACTIONS: (id: string | number) =>
+    `${API_BASE}/api/members/${id}/transactions`,
+  LOANS: (id: string | number) => `${API_BASE}/api/members/${id}/loans`,
+  KYCUPLOAD: (id: string | number) => `${API_BASE}/api/members/${id}/kyc`,
   SENDEMAIL: (id: string | number) => `${API_BASE}/api/members/${id}/email`,
   SENDSMS: (id: string | number) => `${API_BASE}/api/members/${id}/sms`,
   // UPDATE: (id: string | number) => `${API_BASE}/api/members/${id}`,
   DELETE: (id: string | number) => `${API_BASE}/api/members/${id}`,
 };
 
+export const LOANPRODUCT_API = {
+  LIST: `${API_BASE}/api/loan-products`,
+  CREATE: `${API_BASE}/api/loan-products`,
+  SHOW: (id: string | number) => `${API_BASE}/api/loan-products/${id}`,
+  UPDATE: (id: string | number) => `${API_BASE}/api/loan-products/${id}`,
+  DELETE: (id: string | number) => `${API_BASE}/api/loan-products/${id}`,
+  QUOTA: `${API_BASE}/api/loan-products-quota`,
+  TOGGLE: (id: string | number) => `${API_BASE}/api/loan-products/${id}/toggle`,
+};
 
-export const LOANPRODUCT_API = { 
- LIST : `${API_BASE}/api/loan-products`,
- CREATE : `${API_BASE}/api/loan-products`,
- SHOW : (id: string | number) => `${API_BASE}/api/loan-products/${id}`,
- UPDATE : (id: string | number) => `${API_BASE}/api/loan-products/${id}`,
- DELETE : (id: string | number) => `${API_BASE}/api/loan-products/${id}`,
- QUOTA : `${API_BASE}/api/loan-products-quota`,
- TOGGLE : (id: string | number ) => `${API_BASE}/api/loan-products/${id}/toggle`,
-  
-}
+export const LOAN_API = {
+  LIST: `${API_BASE}/api/loans`,
+  CREATE: `${API_BASE}/api/loans`,
+};
+export const SAVINGPRODUCT_API = {
+  LIST: `${API_BASE}/api/savings-products`,
+  CREATE: `${API_BASE}/api/savings-products`,
+  SHOW: (id: string | number) => `${API_BASE}/api/savings-products/${id}`,
+  UPDATE: (id: string | number) => `${API_BASE}/api/savings-products/${id}`,
+  DELETE: (id: string | number) => `${API_BASE}/api/savings-products/${id}`,
+  QUOTA: `${API_BASE}/api/savings-products-quota`,
+  TOGGLE: (id: string | number) =>
+    `${API_BASE}/api/savings-products/${id}/toggle`,
+};
 
-export const LOAN_API = { 
-  LIST : `${API_BASE}/api/loans`,
-  CREATE : `${API_BASE}/api/loans`
-}
-export const SAVINGPRODUCT_API = { 
- LIST : `${API_BASE}/api/savings-products`,
- CREATE : `${API_BASE}/api/savings-products`,
- SHOW : (id: string | number) => `${API_BASE}/api/savings-products/${id}`,
- UPDATE : (id: string | number) => `${API_BASE}/api/savings-products/${id}`,
- DELETE : (id: string | number) => `${API_BASE}/api/savings-products/${id}`,
- QUOTA : `${API_BASE}/api/savings-products-quota`,
- TOGGLE : (id: string | number ) => `${API_BASE}/api/savings-products/${id}/toggle`,
-  
-}
+export const SAVINGACCOUNT_API = {
+  LIST: `${API_BASE}/api/savings-accounts`,
+  CREATE: `${API_BASE}/api/savings-accounts`,
+  SHOW: (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
+  UPDATE: (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
+  DELETE: (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
+  QUOTA: `${API_BASE}/api/savings-accounts-quota`,
+  SUMMARY: `${API_BASE}/api/savings-accounts-summary`,
+  TOGGLE: (id: string | number) =>
+    `${API_BASE}/api/savings-accounts/${id}/toggle`,
 
-export const SAVINGACCOUNT_API = { 
- LIST : `${API_BASE}/api/savings-accounts`,
- CREATE : `${API_BASE}/api/savings-accounts`,
- SHOW : (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
- UPDATE : (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
- DELETE : (id: string | number) => `${API_BASE}/api/savings-accounts/${id}`,
- QUOTA : `${API_BASE}/api/savings-accounts-quota`,
- SUMMARY : `${API_BASE}/api/savings-accounts-summary`,
- TOGGLE : (id: string | number ) => `${API_BASE}/api/savings-accounts/${id}/toggle`,
+  // Route::get('savings-accounts/{account}/transactions', [SavingsAccountController::class, 'transactions']);
+  ///api/savings-accounts/${id}/${endpoint}
 
-    // Route::get('savings-accounts/{account}/transactions', [SavingsAccountController::class, 'transactions']);
-    ///api/savings-accounts/${id}/${endpoint}
-
- DEPOSIT_WITHDRAWAL: (id: string| number, endpoint: string) =>  `${API_BASE}/api/savings-accounts/${id}/${endpoint}`,
+  DEPOSIT_WITHDRAWAL: (id: string | number, endpoint: string) =>
+    `${API_BASE}/api/savings-accounts/${id}/${endpoint}`,
   WITHDRAW: `${API_BASE}/api/savings/transactions/withdraw`,
-  TRANSACTIONS: (id: string | number) => `${API_BASE}/api/savings-accounts/${id}/transactions`,
-  
-}
+  TRANSACTIONS: (id: string | number) =>
+    `${API_BASE}/api/savings-accounts/${id}/transactions`,
+};
 
-export const BRANCH_API = { 
+export const BRANCH_API = {
   LIST: `${API_BASE}/api/branches`,
   CREATE: `${API_BASE}/api/branches`,
   SHOW: (id: string | number) => `${API_BASE}/api/branches/${id}`,
   UPDATE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
   DELETE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
-  
-}
+};
 
-
-
-export const SAVINGTRANSACTION_API = { 
+export const SAVINGTRANSACTION_API = {
   LIST: `${API_BASE}/api/branches`,
   CREATE: `${API_BASE}/api/branches`,
   SHOW: (id: string | number) => `${API_BASE}/api/branches/${id}`,
   UPDATE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
   DELETE: (id: string | number) => `${API_BASE}/api/branches/${id}`,
-  
-}
-
+};
 
 export const SHARESPLAN_API = {
   LIST: "/api/shares-plans",
@@ -141,14 +135,10 @@ export const MEMBER_SHARE_ACCOUNT_API = {
   TRANSACTIONS: (id: number) => `/api/member-share-accounts/${id}/transactions`,
 };
 
-
 export const DIVIDEND_API = {
   LIST: "/api/dividends",
   PAY: (id: number) => `/api/dividends/${id}/pay`,
 };
-
-
-
 
 // Transactions
 export const TRANSACTIONS_API = {

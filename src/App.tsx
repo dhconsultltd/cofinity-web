@@ -51,6 +51,7 @@ function App() {
     const titles: Record<string, string> = {
       "/dashboard": "Welcome Back",
       "/members": "Members Overview",
+      "/add-member": "Add New Member",
       "/loans": "Loans Management",
       "/savings": "Savings Management",
       "/shares": "Shares & Investments",

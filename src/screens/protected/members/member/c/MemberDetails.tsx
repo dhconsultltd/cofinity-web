@@ -3,19 +3,27 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, differenceInYears } from "date-fns";
 import {
-  User, Calendar, Shield, Building2, Phone, Mail,
-  MapPin, UserCheck, FileCheck, Home, CalendarCheck
+  User,
+  Calendar,
+  Shield,
+  Building2,
+  Phone,
+  Mail,
+  MapPin,
+  UserCheck,
+  FileCheck,
+  Home,
+  CalendarCheck,
+  Globe,
+  Download,
 } from "lucide-react";
 import type { Member } from "@/types";
- 
 
 interface MemberDetailsProps {
-  member: Member
+  member: Member;
 }
- 
 
-export default function MemberDetails(  {member} : MemberDetailsProps) {
-
+export default function MemberDetails({ member }: MemberDetailsProps) {
   const fullName = [member.first_name, member.other_name, member.last_name]
     .filter(Boolean)
     .join(" ");
@@ -32,14 +40,27 @@ export default function MemberDetails(  {member} : MemberDetailsProps) {
     { label: "Signature", field: "signature", icon: FileCheck },
   ];
 
-  const uploadedCount = kycDocuments.filter(doc => !!member[doc.field as keyof typeof member]).length;
+  const uploadedCount = kycDocuments.filter(
+    (doc) => !!member[doc.field as keyof typeof member]
+  ).length;
 
   return (
-    <div className="space-y-8">
-      <h2 className="text-2xl font-bold flex items-center gap-3">
-        <User className="w-7 h-7 text-neutral-700" />
-        Personal Information
-      </h2>
+    <div id="personal-info-section" className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h2 className="text-xl md:text-2xl font-bold flex items-center gap-3">
+          <User className="w-6 h-6 md:w-7 md:h-7 text-neutral-700" />
+          Personal Information
+        </h2>
+
+        {/* not functioning yet */}
+        <button
+          // onClick={exportPDF}
+          className="flex items-center justify-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 shadow-md transition-all text-sm"
+        >
+          <Download className="w-4 h-4" />
+          Export PDF
+        </button>
+      </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Personal Card */}
@@ -47,13 +68,19 @@ export default function MemberDetails(  {member} : MemberDetailsProps) {
           <div className="space-y-5">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-neutral-200 rounded-full border-2 border-dashed" />
-              
               <div className="flex-1">
                 <p className="text-sm text-neutral-600">Full Name</p>
                 <p className="text-xl font-bold text-neutral-900">{fullName}</p>
                 <div className="flex items-center gap-4 mt-2 text-sm">
-                  <span className="text-neutral-600">Gender: <span className="font-medium capitalize">{member.gender}</span></span>
-                  <span className="text-neutral-600">Age: <span className="font-medium">{age} years</span></span> 
+                  <span className="text-neutral-600">
+                    Gender:{" "}
+                    <span className="font-medium capitalize">
+                      {member.gender}
+                    </span>
+                  </span>
+                  <span className="text-neutral-600">
+                    Age: <span className="font-medium">{age} years</span>
+                  </span>
                 </div>
               </div>
             </div>
@@ -83,7 +110,9 @@ export default function MemberDetails(  {member} : MemberDetailsProps) {
                 <Building2 className="w-5 h-5 text-neutral-500" />
                 <div>
                   <p className="text-sm text-neutral-600">Branch</p>
-                  <p className="font-medium">{member.branch?.name || "Not assigned"}</p>
+                  <p className="font-medium">
+                    {member.branch?.name || "Not assigned"}
+                  </p>
                 </div>
               </div>
 
@@ -91,7 +120,9 @@ export default function MemberDetails(  {member} : MemberDetailsProps) {
                 <MapPin className="w-5 h-5 text-neutral-500" />
                 <div>
                   <p className="text-sm text-neutral-600">Location</p>
-                  <p className="font-medium">{member.lga}, {member.city}, {member.state}</p>
+                  <p className="font-medium">
+                    {member.lga}, {member.city}, {member.state}
+                  </p>
                 </div>
               </div>
             </div>
@@ -132,20 +163,36 @@ export default function MemberDetails(  {member} : MemberDetailsProps) {
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-neutral-600">Identity Verification</span>
-                <Badge variant={(member.bvn_verified || member.nin_verified) ? "default" : "secondary"}>
-                  {member.bvn_verified || member.nin_verified ? "Verified" : "Pending"}
+                <span className="text-sm text-neutral-600">
+                  Identity Verification
+                </span>
+                <Badge
+                  variant={
+                    member.bvn_verified || member.nin_verified
+                      ? "default"
+                      : "secondary"
+                  }
+                >
+                  {member.bvn_verified || member.nin_verified
+                    ? "Verified"
+                    : "Pending"}
                 </Badge>
               </div>
               {member.bvn_verified && (
-                <Badge variant="outline" className="w-full justify-center">BVN Verified</Badge>
+                <Badge variant="outline" className="w-full justify-center">
+                  BVN Verified
+                </Badge>
               )}
               {member.nin_verified && (
-                <Badge variant="outline" className="w-full justify-center">NIN Verified</Badge>
+                <Badge variant="outline" className="w-full justify-center">
+                  NIN Verified
+                </Badge>
               )}
               <div className="pt-3 border-t">
                 <p className="text-sm text-neutral-600">Documents Uploaded</p>
-                <p className="text-2xl font-bold text-neutral-900">{uploadedCount}/5</p>
+                <p className="text-2xl font-bold text-neutral-900">
+                  {uploadedCount}/5
+                </p>
               </div>
             </div>
           </Card>
@@ -154,14 +201,44 @@ export default function MemberDetails(  {member} : MemberDetailsProps) {
 
       {/* Full Address */}
       <Card className="p-6">
-        <h3 className="font-semibold mb-3 flex items-center gap-2">
-          <Home className="w-5 h-5" />
-          Full Address
-        </h3>
-        <p className="text-neutral-700 leading-relaxed">
-          {member.address},<br />
-          {member.lga}, {member.city}, {member.state}
-        </p>
+        <div className="flex items-center gap-2 mb-4">
+          <Home className="w-5 h-5 text-neutral-700" />
+          <h3 className="font-semibold text-neutral-900">Full Address</h3>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4 text-neutral-700">
+          <div className="flex gap-3">
+            <MapPin className="w-5 h-5 text-neutral-500" />
+            <div>
+              <p className="text-xs text-neutral-500">Address</p>
+              <p className="font-medium">{member.address}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <MapPin className="w-5 h-5 text-neutral-500" />
+            <div>
+              <p className="text-xs text-neutral-500">LGA</p>
+              <p className="font-medium">{member.lga}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Building2 className="w-5 h-5 text-neutral-500" />
+            <div>
+              <p className="text-xs text-neutral-500">City</p>
+              <p className="font-medium">{member.city}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Globe className="w-5 h-5 text-neutral-500" />
+            <div>
+              <p className="text-xs text-neutral-500">State</p>
+              <p className="font-medium">{member.state}</p>
+            </div>
+          </div>
+        </div>
       </Card>
     </div>
   );
