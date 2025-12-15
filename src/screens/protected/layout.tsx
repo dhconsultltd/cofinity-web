@@ -11,61 +11,65 @@ import { getData } from "@/lib/storageHelper";
 
 interface ProtectedLayoutProps {
   children: ReactNode;
-  navbarTitle: string;        // ← ADD THIS LINE
+  navbarTitle: string; // ← ADD THIS LINE
 }
 
-
-export default function ProtectedLayout({ children, navbarTitle }: ProtectedLayoutProps) {
+export default function ProtectedLayout({
+  children,
+  navbarTitle,
+}: ProtectedLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isLoading, isAuthenticated } = useAuth();
   const router = useNavigate();
 
-  //check if user has verify login ? 
+  //check if user has verify login ?
 
-      const res = getData('isLoginVerified');
- 
-
+  const res = getData("isLoginVerified");
 
   // Redirect to login when the auth state is known and the user is unauthenticated.
   // Do this inside useEffect so we don't perform navigation during render
   // (which causes the "Cannot update a component while rendering a different component" error).
   useEffect(() => {
-
-
-
     if (!isLoading && !isAuthenticated) {
       router("/login", { replace: true });
     }
 
-
-
- 
-
-  if(res == false || res == null &&  !isLoading){ 
-    router('verify-login', {replace:true})
-  }
-  
-
+    if (res == false || (res == null && !isLoading)) {
+      router("verify-login", { replace: true });
+    }
   }, [isLoading, isAuthenticated, router, res]);
 
   const getNavbarTitle = () => {
-    // This matches your original App.tsx logic
     const pathname = window.location.pathname;
+
+    if (pathname.startsWith("/members/")) {
+      return "View Member Details";
+    }
+
     switch (pathname) {
       case "/":
       case "/dashboard":
         return "Welcome, Admin";
       case "/members":
         return "Members Overview";
-      case "/branches": 
+      case "/add-member":
+        return "Add New Member";
+      case "/branches":
         return "Branch Management";
-       
       case "/loans":
         return "Loans Management";
+      case "/loan-products":
+        return "Loans Products";
+      case "/loans/create":
+        return "Create New Loans";
       case "/savings":
         return "Savings Management";
+      case "/savings-products":
+        return "Savings Products";
       case "/shares":
         return "Shares Management";
+      case "/shares-plan":
+        return "Shares Plans";
       case "/transactions":
         return "Transactions";
       case "/kyc":
@@ -76,12 +80,12 @@ export default function ProtectedLayout({ children, navbarTitle }: ProtectedLayo
         return "Users Management";
       case "/settings":
         return "System Settings";
-      case "/upcoming-payments" :
+      case "/upcoming-payments":
         return "Upcoming Payments";
-      case "/expenses": 
-        return "Expenses Management"
-      case "/dividends": 
-        return "Dividends"
+      case "/expenses":
+        return "Expenses Management";
+      case "/dividends":
+        return "Dividends";
       default:
         return "Dashboard";
     }
