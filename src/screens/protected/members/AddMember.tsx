@@ -2,6 +2,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { nigeriaStatesAndLgas } from "@/data/nigeria";
 import { toast } from "sonner";
@@ -99,13 +100,6 @@ export default function AddMember() {
   });
 
   const branches = branchesData?.branches ?? [];
-
-  const form = useForm({
-    defaultValues: {
-      lga: "",
-      state: "",
-    },
-  });
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -209,6 +203,7 @@ export default function AddMember() {
 
     createMember.mutate({
       ...formData,
+      branch_id: Number(formData.branch_id),
       branch_id: Number(formData.branch_id),
       bvn_verified: verification.bvn_verified,
       nin_verified: verification.nin_verified,
@@ -331,62 +326,6 @@ export default function AddMember() {
                       placeholder="john@example.com"
                     />
                   </div>
-                </div>
-              </Card>
-
-              {/* Assign to Branch */}
-              <Card className="p-6">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  <Building2 className="w-6 h-6" />
-                  Assign to Branch
-                </h2>
-                <div className="max-w-md">
-                  <Label>Branch *</Label>
-                  {branchesLoading ? (
-                    <div className="h-10 bg-neutral-100 rounded-lg animate-pulse" />
-                  ) : branches.length === 0 ? (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        No branches found.{" "}
-                        <a href="/branches" className="underline font-medium">
-                          Create a branch first
-                        </a>
-                        .
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <Select
-                      value={formData.branch_id}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, branch_id: value })
-                      }
-                    >
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Select a branch" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {branches.map((branch: any) => (
-                          <SelectItem key={branch.id} value={String(branch.id)}>
-                            <div className="flex items-center gap-2">
-                              <Building2 className="w-4 h-4 text-neutral-500" />
-                              <div>
-                                <div className="font-medium">{branch.name}</div>
-                                <div className="text-xs text-neutral-500">
-                                  {branch.city}, {branch.state}
-                                </div>
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                  {!formData.branch_id && formData.branch_id !== "" && (
-                    <p className="text-xs text-red-600 mt-1">
-                      Please select a branch
-                    </p>
-                  )}
                 </div>
               </Card>
 

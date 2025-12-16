@@ -140,11 +140,25 @@ export const DIVIDEND_API = {
   PAY: (id: number) => `/api/dividends/${id}/pay`,
 };
 
+export const TRANSACTION_API = {
+  LIST: "/api/transactions",
+  SUMMARY: "/api/transactions/summary",
+  SHOW: "/api/transactions", // base for show endpoint
+  EXPORT_PDF: `${API_BASE}/api/transactions/export-pdf`,
+  EXPORT_CSV: `${API_BASE}/api/transactions/export-csv`,
+};
+
 // Transactions
 export const TRANSACTIONS_API = {
   LIST: `${API_BASE}/api/transactions`,
   FUND: `${API_BASE}/api/transactions/fund`,
   WITHDRAW: `${API_BASE}/api/transactions/withdraw`,
+};
+
+export const EXPENSE_API = {
+  CATEGORIES: "/api/expense-categories",
+  EXPENSES: "/api/expenses",
+  SUMMARY: "/api/expenses/summary",
 };
 
 // Verification (BVN/NIN)

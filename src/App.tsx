@@ -43,6 +43,8 @@ import AuditLogPage from "./screens/protected/auditLog/AuditLog";
 import DividendsPage from "./screens/protected/dividends/Dividends";
 import CreateLoanPage from "./screens/protected/loans/CreateLoan";
 import LoanDetailPage from "./screens/protected/loans/LoanViewDetails";
+import TransactionsPage from "./screens/protected/transactions/Transactions";
+import ReportsPage from "./screens/protected/ReportPage/ReportPage";
 
 function App() {
   const location = useLocation();
@@ -156,7 +158,7 @@ function App() {
           </Routes>
         </>
       ) : (
-        <ProtectedRoute>
+        <ProtectedRoute requireCooperative={true}>
           <Layout navbarTitle={getNavbarTitle()}>
             <Routes>
               {/* Dashboard Routes */}
@@ -181,9 +183,9 @@ function App() {
               />
 
               <Route path="/shares" element={<MemberShareAccountsPage />} />
-              <Route path="/transactions" element={<Transactions />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/kyc" element={<Kyc />} />
-              <Route path="/report" element={<Report />} />
+              <Route path="/report" element={<ReportsPage />} />
               <Route path="/user" element={<Users />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/upgrade" element={<UpgradePlan />} />
