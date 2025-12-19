@@ -86,6 +86,8 @@ export default function ProtectedLayout({
         return "Expenses Management";
       case "/dividends":
         return "Dividends";
+      case "/wallet":
+        return "Wallet";
       default:
         return "Dashboard";
     }
