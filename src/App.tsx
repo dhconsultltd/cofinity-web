@@ -1,5 +1,4 @@
 // App.tsx – Fixed: 404 renders only once (clean full-page, no Layout sidebar)
-
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
@@ -192,9 +191,11 @@ function App() {
 
       {/* Global fallback 404 – renders full page (no Layout) for any unmatched route */}
       {/* This will only trigger if the URL doesn't match any of the above blocks */}
-      <Routes>
+      {/* <Routes>
         <Route path="*" element={<NotFound />} />
-      </Routes>
+      </Routes> */}
+
+
     </>
   );
 }

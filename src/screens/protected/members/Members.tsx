@@ -117,17 +117,7 @@ export default function Members() {
               <FileText className="w-10 h-10 text-green-600" />
             </div>
           </Card>
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-neutral-600">Total Savings</p>
-                <p className="text-3xl font-bold">
-                  ₦{members.reduce((a, m) => a + m.total_savings, 0).toLocaleString()}
-                </p>
-              </div>
-              <PiggyBank className="w-10 h-10 text-emerald-600" />
-            </div>
-          </Card>
+         
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -171,8 +161,7 @@ export default function Members() {
                   <TableHead>ID</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>KYC</TableHead>
-                  <TableHead>Savings</TableHead>
-                  <TableHead>Joined</TableHead>
+                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -192,9 +181,7 @@ export default function Members() {
                         {member.bvn_verified || member.nin_verified ? "Verified" : "Pending"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-semibold">
-                      ₦{member.total_savings.toLocaleString()}
-                    </TableCell>
+              
                     <TableCell>
                       {format(new Date(member.created_at), "MMM d, yyyy")}
                     </TableCell>
