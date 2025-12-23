@@ -1,20 +1,11 @@
-// app/error.tsx (Next.js 13+ App Router error boundary)
-"use client";
-
-import { useEffect } from "react";
-import { Building2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-interface ErrorProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-}
-
-export default function GlobalError({ error, reset }: ErrorProps) {
-  useEffect(() => {
-    // Log error to monitoring service (Sentry, etc.) in production
-    console.error("Global error boundary caught:", error);
-  }, [error]);
+export default function Error500() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-16">
@@ -40,13 +31,30 @@ export default function GlobalError({ error, reset }: ErrorProps) {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button onClick={() => reset()} size="lg">
+          <Button onClick={() => navigate(-1)} size="lg">
             <RefreshCw className="mr-2 h-5 w-5" />
             Try Again
           </Button>
-          <Button asChild variant="outline" size="lg">
-            <a href="/dashboard">Go to Dashboard</a>
-          </Button>
+
+          {user != null ? (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate("/dashboard")}
+            >
+              Go to Dashboard
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate("/login")}
+              >
+                Go to Login
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Support */}
@@ -71,4 +79,6 @@ export default function GlobalError({ error, reset }: ErrorProps) {
       </div>
     </div>
   );
+
+  //   <h1>500 - Something went wrong</h1>;
 }
