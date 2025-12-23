@@ -11,7 +11,7 @@ import {
   Eye,
   ArrowDownRight,
   Calculator,
-  ArrowUpRight
+  ArrowUpRight,
 } from "lucide-react";
 
 import { apiClient } from "@/lib/api-client";
@@ -20,10 +20,35 @@ import { MEMBERS_API, SAVINGACCOUNT_API, SAVINGPRODUCT_API } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -51,20 +76,18 @@ interface SavingsAccount {
   opened_at: string;
   updated_at: string;
 
-
   balance: number;
   last_activity: string;
   status: "active" | "inactive" | "dormant" | "closed";
   member: {
-    id: number | string,
-    name: string,
-  }
+    id: number | string;
+    name: string;
+  };
   product: {
-    id: number | string,
-    name: string,
-  }
+    id: number | string;
+    name: string;
+  };
 }
-
 
 interface MemberBankAccount {
   id: string;
@@ -89,15 +112,12 @@ const calcSchema = z.object({
   period: z.enum(["days", "months", "years"]),
 });
 
-
 const transactionSchema = z.object({
   savings_account_id: z.string().min(1, "Select an account"),
   amount: z.number().min(0.01, "Amount must be > 0"),
   description: z.string().optional(),
   member_bank_account_id: z.string().optional(), // only for withdrawal
 });
-
-
 
 export default function Savings() {
   const navigate = useNavigate();
@@ -115,39 +135,51 @@ export default function Savings() {
 
   // Selected data
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
-  const [selectedAccount, setSelectedAccount] = useState<SavingsAccount | null>(null);
-  const [memberBankAccounts, setMemberBankAccounts] = useState<MemberBankAccount[]>([]);
+  const [selectedAccount, setSelectedAccount] = useState<SavingsAccount | null>(
+    null
+  );
+  const [memberBankAccounts, setMemberBankAccounts] = useState<
+    MemberBankAccount[]
+  >([]);
 
   // API Queries
-  const { data: summary = { total_balance: 0, members_with_savings: 0, average_balance: 0 } } = useQuery<Summary>({
+  const {
+    data: summary = {
+      total_balance: 0,
+      members_with_savings: 0,
+      average_balance: 0,
+    },
+  } = useQuery<Summary>({
     queryKey: ["savings-summary"],
-    queryFn: () => apiClient.get(SAVINGACCOUNT_API.SUMMARY).then((res) => res.data),
+    queryFn: () =>
+      apiClient.get(SAVINGACCOUNT_API.SUMMARY).then((res) => res.data),
   });
 
   const { data: accountsResponse, isLoading } = useQuery({
     queryKey: ["savings-accounts", currentPage, search, sort],
     queryFn: () =>
       apiClient
-        .get(SAVINGACCOUNT_API.LIST, { params: { page: currentPage, search, sort } })
+        .get(SAVINGACCOUNT_API.LIST, {
+          params: { page: currentPage, search, sort },
+        })
         .then((res) => res),
   });
 
-
   const { data: quota } = useQuery({
     queryKey: ["savings-account-quota"],
-    queryFn: () => apiClient.get(SAVINGACCOUNT_API.QUOTA).then((res) => res.data),
+    queryFn: () =>
+      apiClient.get(SAVINGACCOUNT_API.QUOTA).then((res) => res.data),
   });
-
-
-
-
 
   const accounts: SavingsAccount[] = accountsResponse?.data || [];
   const totalPages = accountsResponse?.meta?.last_page || 1;
 
   const { data: products = [] } = useQuery<SavingsProduct[]>({
     queryKey: ["savings-products-select"],
-    queryFn: () => apiClient.get(SAVINGPRODUCT_API.LIST).then((res) => res.data.products || []),
+    queryFn: () =>
+      apiClient
+        .get(SAVINGPRODUCT_API.LIST)
+        .then((res) => res.data.products || []),
   });
 
   // Fetch member bank accounts when account selected in withdrawal
@@ -180,7 +212,8 @@ export default function Savings() {
 
   // Mutations
   const createMutation = useMutation({
-    mutationFn: (data: z.infer<typeof createSchema>) => apiClient.post(SAVINGACCOUNT_API.CREATE, data),
+    mutationFn: (data: z.infer<typeof createSchema>) =>
+      apiClient.post(SAVINGACCOUNT_API.CREATE, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["savings-accounts"] });
       queryClient.invalidateQueries({ queryKey: ["savings-summary"] });
@@ -189,24 +222,41 @@ export default function Savings() {
       createForm.reset();
       setSelectedMember(null);
     },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Failed to create account"),
+    onError: (err: any) =>
+      toast.error(err.response?.data?.message || "Failed to create account"),
   });
 
   const transactionMutation = useMutation({
-    mutationFn: ({ type, data }: { type: "deposit" | "withdrawal"; data: z.infer<typeof transactionSchema> }) => {
-      const endpoint = type === "deposit" ? SAVINGACCOUNT_API.DEPOSIT : SAVINGACCOUNT_API.WITHDRAW;
+    mutationFn: ({
+      type,
+      data,
+    }: {
+      type: "deposit" | "withdrawal";
+      data: z.infer<typeof transactionSchema>;
+    }) => {
+      const endpoint =
+        type === "deposit"
+          ? SAVINGACCOUNT_API.DEPOSIT
+          : SAVINGACCOUNT_API.WITHDRAW;
       return apiClient.post(endpoint, data);
     },
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["savings-accounts"] });
       queryClient.invalidateQueries({ queryKey: ["savings-summary"] });
-      toast.success(`${vars.type === "deposit" ? "Deposit" : "Withdrawal"} recorded successfully`);
-      vars.type === "deposit" ? setDepositOpen(false) : setWithdrawalOpen(false);
+      toast.success(
+        `${
+          vars.type === "deposit" ? "Deposit" : "Withdrawal"
+        } recorded successfully`
+      );
+      vars.type === "deposit"
+        ? setDepositOpen(false)
+        : setWithdrawalOpen(false);
       depositForm.reset();
       withdrawalForm.reset();
       setSelectedAccount(null);
     },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Transaction failed"),
+    onError: (err: any) =>
+      toast.error(err.response?.data?.message || "Transaction failed"),
   });
 
   const calculateInterest = (data: z.infer<typeof calcSchema>) => {
@@ -221,10 +271,17 @@ export default function Savings() {
   };
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(value);
+    new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+    }).format(value);
 
   // Reusable Account Search (same pattern as MemberSearchSelect)
-  const AccountSearch = ({ onSelect }: { onSelect: (acc: SavingsAccount) => void }) => {
+  const AccountSearch = ({
+    onSelect,
+  }: {
+    onSelect: (acc: SavingsAccount) => void;
+  }) => {
     const [search, setSearch] = useState("");
     const [results, setResults] = useState<SavingsAccount[]>([]);
 
@@ -282,19 +339,24 @@ export default function Savings() {
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div className="flex flex-wrap gap-3">
-
           <Button onClick={() => setCalcOpen(true)} variant="outline">
             <Calculator className="w-4 h-4 mr-2" />
             Interest Calculator
           </Button>
         </div>
 
-        <div className="flex gap-3">
-          <Button onClick={() => setCreateOpen(true)} className="bg-black hover:bg-gray-900 text-white">
+        <div className="flex gap-3 max-w-full flex-wrap">
+          <Button
+            onClick={() => setCreateOpen(true)}
+            className="bg-black hover:bg-gray-900 text-white"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Create Savings Account
           </Button>
-          <Button onClick={() => navigate("/savings-products")} className="bg-black hover:bg-gray-900 text-white">
+          <Button
+            onClick={() => navigate("/savings-products")}
+            className="bg-black hover:bg-gray-900 text-white"
+          >
             Manage Products
           </Button>
         </div>
@@ -307,16 +369,20 @@ export default function Savings() {
           <div className="flex items-center justify-between">
             <div>
               <PiggyBank className="w-8 h-8 text-gray-700" />
-              <p className="text-sm text-gray-600 mt-2">Total Savings Balance</p>
+              <p className="text-sm text-gray-600 mt-2">
+                Total Savings Balance
+              </p>
               <p className="text-2xl font-bold text-black mt-1">
                 {formatCurrency(summary.total_balance)}
               </p>
 
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-700"
+              >
                 +11% this month
               </Badge>
             </div>
-
           </div>
         </Card>
 
@@ -328,11 +394,13 @@ export default function Savings() {
               <p className="text-2xl font-bold text-black mt-1">
                 {summary.members_with_savings}
               </p>
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-700"
+              >
                 +5% this month
               </Badge>
             </div>
-
           </div>
         </Card>
 
@@ -344,11 +412,13 @@ export default function Savings() {
               <p className="text-2xl font-bold text-black mt-1">
                 {formatCurrency(summary.average_balance)}
               </p>
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-700"
+              >
                 +15% this month
               </Badge>
             </div>
-
           </div>
         </Card>
 
@@ -363,11 +433,14 @@ export default function Savings() {
                     {quota.used} / {quota.limit}
                   </>
                 )}
-              </p><Badge variant="secondary" className="bg-green-100 text-green-700">
+              </p>
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-700"
+              >
                 +15% this month
               </Badge>
             </div>
-
           </div>
         </Card>
 
@@ -380,15 +453,16 @@ export default function Savings() {
           <Card className="border border-yellow-300 bg-yellow-50 p-4">
             <p className="text-sm text-yellow-700">
               You've reached your account limit ({quota.used}/{quota.limit}).{" "}
-              <button onClick={() => navigate("/upgrade")} className="btn-link underline font-medium">
+              <button
+                onClick={() => navigate("/upgrade")}
+                className="btn-link underline font-medium"
+              >
                 Upgrade plan
               </button>{" "}
               to add more.
             </p>
           </Card>
         )}
-
-
 
         <div className="relative flex-1">
           <Input
@@ -417,38 +491,73 @@ export default function Savings() {
         <Table>
           <TableHeader>
             <TableRow className="border-b border-gray-300 bg-red-50">
-              <TableHead className="text-black font-semibold">Member Name</TableHead>
-              <TableHead className="text-black font-semibold">Account Number</TableHead>
-              <TableHead className="text-black font-semibold">Account Type</TableHead>
-              <TableHead className="text-black font-semibold">Balance</TableHead>
-              <TableHead className="text-black font-semibold">Last Activity</TableHead>
+              <TableHead className="text-black font-semibold">
+                Member Name
+              </TableHead>
+              <TableHead className="text-black font-semibold">
+                Account Number
+              </TableHead>
+              <TableHead className="text-black font-semibold">
+                Account Type
+              </TableHead>
+              <TableHead className="text-black font-semibold">
+                Balance
+              </TableHead>
+              <TableHead className="text-black font-semibold">
+                Last Activity
+              </TableHead>
               <TableHead className="text-black font-semibold">Status</TableHead>
               <TableHead className="text-black font-semibold">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-12">Loading...</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-12">
+                  Loading...
+                </TableCell>
+              </TableRow>
             ) : accounts.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-12">No accounts found</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-12">
+                  No accounts found
+                </TableCell>
+              </TableRow>
             ) : (
               accounts.map((account) => (
                 <TableRow key={account.id} className="hover:bg-gray-50">
-                  <TableCell className="text-black">{account.member.name}</TableCell>
-                  <TableCell className="font-mono text-black">{account.account_number}</TableCell>
-                  <TableCell className="text-black">{account.product.name}</TableCell>
-                  <TableCell className="font-medium">{formatCurrency(account.balance)}</TableCell>
-                  <TableCell className="text-sm text-gray-600">{account.updated_at}</TableCell>
+                  <TableCell className="text-black">
+                    {account.member.name}
+                  </TableCell>
+                  <TableCell className="font-mono text-black">
+                    {account.account_number}
+                  </TableCell>
+                  <TableCell className="text-black">
+                    {account.product.name}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {formatCurrency(account.balance)}
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">
+                    {account.updated_at}
+                  </TableCell>
                   <TableCell>
-                    <Badge variant={account.status === "active" ? "default" : "secondary"}>
-                      {account.status.charAt(0).toUpperCase() + account.status.slice(1)}
+                    <Badge
+                      variant={
+                        account.status === "active" ? "default" : "secondary"
+                      }
+                    >
+                      {account.status.charAt(0).toUpperCase() +
+                        account.status.slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate(`/savings/accounts/${account.id}`)}
+                      onClick={() =>
+                        navigate(`/savings/accounts/${account.id}`)
+                      }
                     >
                       View Details →
                     </Button>
@@ -467,14 +576,20 @@ export default function Savings() {
             <PaginationItem>
               <PaginationPrevious
                 href="#"
-                onClick={(e) => { e.preventDefault(); if (currentPage > 1) setCurrentPage(p => p - 1); }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1) setCurrentPage((p) => p - 1);
+                }}
               />
             </PaginationItem>
             {/* ... pages ... */}
             <PaginationItem>
               <PaginationNext
                 href="#"
-                onClick={(e) => { e.preventDefault(); if (currentPage < totalPages) setCurrentPage(p => p + 1); }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages) setCurrentPage((p) => p + 1);
+                }}
               />
             </PaginationItem>
           </PaginationContent>
@@ -487,7 +602,10 @@ export default function Savings() {
           <DialogHeader>
             <DialogTitle>Create New Savings Account</DialogTitle>
           </DialogHeader>
-          <form onSubmit={createForm.handleSubmit((d) => createMutation.mutate(d))} className="space-y-5">
+          <form
+            onSubmit={createForm.handleSubmit((d) => createMutation.mutate(d))}
+            className="space-y-5"
+          >
             <MemberSearchSelect
               value={selectedMember}
               className="space-y-2"
@@ -501,11 +619,19 @@ export default function Savings() {
             )}
             <div className="space-y-2">
               <Label>Savings Product *</Label>
-              <Select onValueChange={(v) => createForm.setValue("savings_product_id", v)}>
-                <SelectTrigger className="w-full"><SelectValue placeholder="Select product" /></SelectTrigger>
+              <Select
+                onValueChange={(v) =>
+                  createForm.setValue("savings_product_id", v)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select product" />
+                </SelectTrigger>
                 <SelectContent>
                   {products.map((p) => (
-                    <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+                    <SelectItem key={p.id} value={p.id.toString()}>
+                      {p.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -521,23 +647,31 @@ export default function Savings() {
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                {...createForm.register("opening_balance", { valueAsNumber: true })}
+                {...createForm.register("opening_balance", {
+                  valueAsNumber: true,
+                })}
               />
               {/* <Input type="number" step="0.01" {...createForm.register("opening_balance")} /> */}
 
               {createForm.formState.errors.opening_balance && (
                 <p className="text-sm text-red-600 mt-1">
-                  {createForm.formState.errors.opening_balance.message || "Enter a valid amount"}
+                  {createForm.formState.errors.opening_balance.message ||
+                    "Enter a valid amount"}
                 </p>
               )}
-
             </div>
             <div className="space-y-2">
               <Label>Description (optional)</Label>
               <Textarea {...createForm.register("description")} />
             </div>
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCreateOpen(false)}
+              >
+                Cancel
+              </Button>
               <Button type="submit" disabled={createMutation.isPending}>
                 {createMutation.isPending ? "Creating..." : "Create Account"}
               </Button>
@@ -549,25 +683,49 @@ export default function Savings() {
       {/* Deposit Modal */}
       <Dialog open={depositOpen} onOpenChange={setDepositOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Record Deposit</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Record Deposit</DialogTitle>
+          </DialogHeader>
           <form
             onSubmit={depositForm.handleSubmit((d) =>
-              transactionMutation.mutate({ type: "deposit", data: { ...d, savings_account_id: selectedAccount!.id } })
+              transactionMutation.mutate({
+                type: "deposit",
+                data: { ...d, savings_account_id: selectedAccount!.id },
+              })
             )}
             className="space-y-5"
           >
-            <AccountSearch onSelect={(acc) => { setSelectedAccount(acc); depositForm.setValue("savings_account_id", acc.id); }} />
+            <AccountSearch
+              onSelect={(acc) => {
+                setSelectedAccount(acc);
+                depositForm.setValue("savings_account_id", acc.id);
+              }}
+            />
             <div className="space-y-3">
               <Label>Amount *</Label>
-              <Input type="number" step="0.01" {...depositForm.register("amount", { valueAsNumber: true })} placeholder="0.00" />
+              <Input
+                type="number"
+                step="0.01"
+                {...depositForm.register("amount", { valueAsNumber: true })}
+                placeholder="0.00"
+              />
             </div>
             <div className="space-y-3">
               <Label>Description (optional)</Label>
               <Textarea {...depositForm.register("description")} />
             </div>
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setDepositOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={!selectedAccount || transactionMutation.isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDepositOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!selectedAccount || transactionMutation.isPending}
+              >
                 Record Deposit
               </Button>
             </div>
@@ -578,7 +736,9 @@ export default function Savings() {
       {/* Withdrawal Modal */}
       <Dialog open={withdrawalOpen} onOpenChange={setWithdrawalOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Record Withdrawal</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Record Withdrawal</DialogTitle>
+          </DialogHeader>
           <form
             onSubmit={withdrawalForm.handleSubmit((d) =>
               transactionMutation.mutate({
@@ -588,16 +748,35 @@ export default function Savings() {
             )}
             className="space-y-5"
           >
-            <AccountSearch onSelect={(acc) => { setSelectedAccount(acc); withdrawalForm.setValue("savings_account_id", acc.id); }} />
+            <AccountSearch
+              onSelect={(acc) => {
+                setSelectedAccount(acc);
+                withdrawalForm.setValue("savings_account_id", acc.id);
+              }}
+            />
             <div>
               <Label>Amount *</Label>
-              <Input type="number" step="0.01" {...withdrawalForm.register("amount", { valueAsNumber: true })} placeholder="0.00" />
+              <Input
+                type="number"
+                step="0.01"
+                {...withdrawalForm.register("amount", { valueAsNumber: true })}
+                placeholder="0.00"
+              />
             </div>
             {memberBankAccounts.length > 0 && (
               <div>
                 <Label>Withdraw to Bank Account (optional)</Label>
-                <Select onValueChange={(v) => withdrawalForm.setValue("member_bank_account_id", v || undefined)}>
-                  <SelectTrigger className="w-full"><SelectValue placeholder="Select bank account" /></SelectTrigger>
+                <Select
+                  onValueChange={(v) =>
+                    withdrawalForm.setValue(
+                      "member_bank_account_id",
+                      v || undefined
+                    )
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select bank account" />
+                  </SelectTrigger>
                   <SelectContent>
                     {memberBankAccounts.map((ba) => (
                       <SelectItem key={ba.id} value={ba.id}>
@@ -613,8 +792,18 @@ export default function Savings() {
               <Textarea {...withdrawalForm.register("description")} />
             </div>
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setWithdrawalOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={!selectedAccount || transactionMutation.isPending} className="bg-red-600 hover:bg-red-700">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setWithdrawalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!selectedAccount || transactionMutation.isPending}
+                className="bg-red-600 hover:bg-red-700"
+              >
                 Record Withdrawal
               </Button>
             </div>
@@ -629,7 +818,10 @@ export default function Savings() {
               Interest Calculator
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={calcForm.handleSubmit(calculateInterest)} className="space-y-4">
+          <form
+            onSubmit={calcForm.handleSubmit(calculateInterest)}
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <Label>Product</Label>
               <Select onValueChange={(v) => calcForm.setValue("product_id", v)}>
@@ -677,7 +869,9 @@ export default function Savings() {
               </div>
               <div className="space-y-2">
                 <Label>Period</Label>
-                <Select onValueChange={(v) => calcForm.setValue("period", v as any)}>
+                <Select
+                  onValueChange={(v) => calcForm.setValue("period", v as any)}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -690,18 +884,23 @@ export default function Savings() {
               </div>
             </div>
             <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={() => setCalcOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCalcOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-black hover:bg-gray-900 text-white">
+              <Button
+                type="submit"
+                className="bg-black hover:bg-gray-900 text-white"
+              >
                 Calculate
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
-
-
     </div>
   );
 }

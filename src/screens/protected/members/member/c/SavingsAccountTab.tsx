@@ -9,10 +9,17 @@ import {
   Plus,
   History,
   CreditCard,
-  Loader2,
   AlertCircle,
   CheckCircle2,
 } from "lucide-react";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import { apiClient } from "@/lib/api-client";
+import { MEMBERS_API, SAVINGACCOUNT_API, SAVINGPRODUCT_API } from "@/constants";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,15 +37,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "sonner";
-import { apiClient } from "@/lib/api-client";
-import { MEMBERS_API } from "@/constants";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
-// Expected shapes
+/* ================= TYPES ================= */
+
 type SavingsAccount = {
   id: number;
   account_number: string;
-  product_name: string; // From savings_product
+  product_name: string;
   balance: number;
   total_deposits: number;
   total_withdrawals: number;
@@ -53,30 +74,99 @@ type Member = {
   savings_accounts?: SavingsAccount[];
 };
 
-interface SavingsAccountTabProps {
+type SavingsProduct = {
+  id: number;
+  name: string;
+};
+
+interface Props {
   memberId: number;
 }
 
-export default function SavingsAccountTab({
-  memberId,
-}: SavingsAccountTabProps) {
-  const queryClient = useQueryClient();
+/* ================= VALIDATION ================= */
 
-  const { data: member, isLoading } = useQuery({
+const createSchema = z.object({
+  savings_product_id: z.string().min(1, "Select a product"),
+  opening_balance: z.number().min(0),
+  description: z.string().optional(),
+  member_id: z.number(),
+});
+
+/* ================= COMPONENT ================= */
+
+export default function SavingsAccountTab({ memberId }: Props) {
+  const queryClient = useQueryClient();
+  const [createOpen, setCreateOpen] = useState(false);
+
+  /* ===== Queries ===== */
+
+  const { data: member, isLoading } = useQuery<Member>({
     queryKey: ["member-savings", memberId],
     queryFn: async () => {
-      const res = await apiClient.get(MEMBERS_API.SHOW(memberId));
-      return res.data as Member;
+      const res = await apiClient.get(MEMBERS_API.SAVINGSACCOUNTS(memberId));
+      return res.data;
     },
   });
 
-  const savingsAccounts = member?.savings_accounts || [];
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [search, setSearch] = useState("");
+  // const [sort, setSort] = useState("recent");
+
+  // const { data: accountsResponse, isLoading } = useQuery({
+  //   queryKey: ["savings-accounts", currentPage, search, sort],
+  //   queryFn: () =>
+  //     apiClient
+  //       .get(SAVINGACCOUNT_API.LIST, {
+  //         params: { page: currentPage, search, sort },
+  //       })
+  //       .then((res) => res),
+  // });
+
+  const { data: products = [] } = useQuery<SavingsProduct[]>({
+    queryKey: ["savings-products"],
+    queryFn: async () => {
+      const res = await apiClient.get(SAVINGPRODUCT_API.LIST);
+      return res.data.products || [];
+    },
+  });
+
+  const savingsAccounts = accountsResponse || [];
+
+  /* ===== Form ===== */
+
+  const createForm = useForm<z.infer<typeof createSchema>>({
+    resolver: zodResolver(createSchema),
+    defaultValues: {
+      opening_balance: 0,
+    },
+  });
+
+  /* ===== Mutation ===== */
+
+  const createMutation = useMutation({
+    mutationFn: (data: z.infer<typeof createSchema>) =>
+      apiClient.post(SAVINGACCOUNT_API.CREATE, data),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["member-savings", memberId],
+      });
+      toast.success("Savings account created successfully");
+      setCreateOpen(false);
+      createForm.reset();
+    },
+
+    onError: (err: any) =>
+      toast.error(err?.message || "Failed to create account"),
+  });
 
   const formatCurrency = (amount: number) =>
     `₦${amount.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
+
+  /* ================= LOADING ================= */
 
   if (isLoading) {
     return (
@@ -88,11 +178,9 @@ export default function SavingsAccountTab({
               <CardHeader>
                 <div className="h-6 bg-gray-200 rounded w-48 animate-pulse" />
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
-                </div>
+              <CardContent className="space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-full animate-pulse" />
+                <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
               </CardContent>
             </Card>
           ))}
@@ -101,8 +189,11 @@ export default function SavingsAccountTab({
     );
   }
 
+  /* ================= UI ================= */
+
   return (
     <div className="space-y-8">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -114,13 +205,13 @@ export default function SavingsAccountTab({
           </p>
         </div>
 
-        {/* Optional: Button to open "Create Savings Account" modal if your flow allows admins to create on behalf of member */}
-        {/* <Button>
+        <Button onClick={() => setCreateOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          Open New Account
-        </Button> */}
+          Create Savings Account
+        </Button>
       </div>
 
+      {/* Empty State */}
       {savingsAccounts.length === 0 ? (
         <Card>
           <CardContent className="text-center py-16">
@@ -137,10 +228,10 @@ export default function SavingsAccountTab({
         <div className="grid gap-6">
           {savingsAccounts.map((account) => (
             <Card key={account.id} className="overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
-                <div className="flex items-center justify-between">
+              <CardHeader className="bg-gray-50">
+                <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle className="text-xl flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2">
                       <CreditCard className="w-5 h-5" />
                       {account.product_name}
                     </CardTitle>
@@ -151,51 +242,47 @@ export default function SavingsAccountTab({
                       </span>
                     </CardDescription>
                   </div>
-                  <div className="text-right">
-                    <Badge
-                      variant={
-                        account.status === "active" ? "default" : "secondary"
-                      }
-                      className={
-                        account.status === "active" ? "bg-green-600" : ""
-                      }
-                    >
-                      {account.status === "active" ? (
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                      ) : (
-                        <AlertCircle className="w-3 h-3 mr-1" />
-                      )}
-                      {account.status.charAt(0).toUpperCase() +
-                        account.status.slice(1)}
-                    </Badge>
-                  </div>
+
+                  <Badge
+                    variant={
+                      account.status === "active" ? "default" : "secondary"
+                    }
+                    className={
+                      account.status === "active" ? "bg-green-600" : ""
+                    }
+                  >
+                    {account.status === "active" ? (
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                    ) : (
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                    )}
+                    {account.status}
+                  </Badge>
                 </div>
               </CardHeader>
 
               <CardContent className="pt-6">
-                {/* Balance Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
                   <div className="text-center">
                     <p className="text-sm text-gray-600">Current Balance</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">
+                    <p className="text-3xl font-bold">
                       {formatCurrency(account.balance)}
                     </p>
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-gray-600">Total Deposits</p>
-                    <p className="text-2xl font-semibold text-green-600">
+                    <p className="text-xl text-green-600 font-semibold">
                       {formatCurrency(account.total_deposits)}
                     </p>
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-gray-600">Interest Earned</p>
-                    <p className="text-2xl font-semibold text-blue-600">
+                    <p className="text-xl text-blue-600 font-semibold">
                       {formatCurrency(account.interest_earned)}
                     </p>
                   </div>
                 </div>
 
-                {/* Details Table */}
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -224,19 +311,89 @@ export default function SavingsAccountTab({
                   </TableBody>
                 </Table>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3 mt-6">
+                <div className="mt-6">
                   <Button variant="outline">
                     <History className="w-4 h-4 mr-2" />
                     View Transactions
                   </Button>
-                  {/* Future actions: Fund, Withdraw, Close Account, etc. */}
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* ================= CREATE MODAL ================= */}
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create New Savings Account</DialogTitle>
+          </DialogHeader>
+
+          <form
+            onSubmit={createForm.handleSubmit((d) => createMutation.mutate(d))}
+            className="space-y-5"
+          >
+            <div className="space-y-2">
+              <Label>Savings Product *</Label>
+              <Select
+                onValueChange={(v) =>
+                  createForm.setValue("savings_product_id", v)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select product" />
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={p.id.toString()}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Opening Balance</Label>
+              <Input
+                type="number"
+                step="0.01"
+                {...createForm.register("opening_balance", {
+                  valueAsNumber: true,
+                })}
+              />
+              <Input
+                type="hidden"
+                step="0.01"
+                value={memberId}
+                {...createForm.register("member_id", {
+                  valueAsNumber: true,
+                })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Description (optional)</Label>
+              <Textarea {...createForm.register("description")} />
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCreateOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? "Creating..." : "Create Account"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

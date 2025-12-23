@@ -57,6 +57,8 @@ export const MEMBERS_API = {
   SENDSMS: (id: string | number) => `${API_BASE}/api/members/${id}/sms`,
   // UPDATE: (id: string | number) => `${API_BASE}/api/members/${id}`,
   DELETE: (id: string | number) => `${API_BASE}/api/members/${id}`,
+  SAVINGSACCOUNTS: (id: string | number) =>
+    `${API_BASE}/api/members/${id}/savings-accounts`,
 
   NEXT_OF_KIN_ITEM: (memberId: string | number, nokId: string | number) =>
     `${API_BASE}/api/members/${memberId}/next-of-kin/${nokId}`,
