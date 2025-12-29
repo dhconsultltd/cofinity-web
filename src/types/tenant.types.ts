@@ -10,49 +10,41 @@ export type Tenant = {
   settings?: Record<string, any>;
   created_at: string;
   updated_at: string;
-  
+  notification_preferences?: Record<string, any>;
+  sms_charge_bearer: string;
+  email_charge_bearer: string;
+  deposit_charge_bearer: string;
 
-  coop_initials:string;
+  coop_initials: string;
 
- 
   approved_at: string | null;
   registration_number: string | null;
   business_type: string | null;
   industry_type: string | null;
 
- 
-   cac_cert: string | null;
-   city:string | null;
-   country:string | null;
-   description: string |null;
+  cac_cert: string | null;
+  city: string | null;
+  country: string | null;
+  description: string | null;
 
-  
-   founded_at:string | null; 
-   
-   member_types: string | null; 
+  founded_at: string | null;
+
+  member_types: string | null;
   membership_fee: string | null;
-  meta: []; 
+  meta: [];
 
- 
-  plan_id:string | null;  
-  
-  state:string; 
+  plan_id: string | null;
+
+  state: string;
   status: string;
   website: string;
 
-
-  auto_sweep_enabled: string; 
+  auto_sweep_enabled: string;
   sweep_bank_name: string | null;
   sweep_account_name: string | null;
   sweep_account_number: string | null;
   sweep_bank_code: string | null;
   sms_enabled: boolean;
-  auto_deduct_fees:boolean;  
-  email_enabled:boolean; 
-
- 
- 
-
-
-
+  auto_deduct_fees: boolean;
+  email_enabled: boolean;
 };

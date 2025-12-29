@@ -71,9 +71,9 @@ const settingsSchema = z.object({
   maintenance_frequency: z.enum(["weekly", "monthly"]),
   auto_deduct_fees: z.boolean(),
 
-  deposit_charge_bearer: z.enum(["cooperative", "member"]),
-  sms_charge_bearer: z.enum(["cooperative", "member"]),
-  email_charge_bearer: z.enum(["cooperative", "member"]),
+  deposit_charge_bearer: z.string().default("cooperative"),
+  sms_charge_bearer: z.string().default("cooperative"),
+  email_charge_bearer: z.string().default("cooperative"),
 
   sms_enabled: z.boolean(),
   email_enabled: z.boolean(),
@@ -147,21 +147,42 @@ export default function SettingsPage() {
         maintenance_frequency: "monthly",
         auto_deduct_fees: true,
 
-        deposit_charge_bearer: "cooperative",
-        sms_charge_bearer: tenant.sms_enabled ? "cooperative" : "member",
-        email_charge_bearer: tenant.email_enabled ? "cooperative" : "member",
+        deposit_charge_bearer: tenant.deposit_charge_bearer,
+        sms_charge_bearer: tenant?.sms_charge_bearer,
+        email_charge_bearer: tenant?.email_charge_bearer,
 
         sms_enabled: Boolean(tenant.sms_enabled),
         email_enabled: Boolean(tenant.email_enabled),
 
         notification_preferences: {
-          memberRegistration: { sms: true, email: true },
-          savingsDeposit: { sms: true, email: false },
-          savingsWithdrawal: { sms: true, email: false },
-          loanApproval: { sms: true, email: true },
-          loanDisbursement: { sms: true, email: true },
-          loanRepayment: { sms: true, email: false },
-          feeDeduction: { sms: true, email: true },
+          memberRegistration: {
+            sms: tenant.notification_preferences?.memberRegistration?.sms,
+            email: tenant.notification_preferences?.memberRegistration?.email,
+          },
+          savingsDeposit: {
+            sms: tenant.notification_preferences?.savingsDeposit?.sms,
+            email: tenant.notification_preferences?.savingsDeposit?.email,
+          },
+          savingsWithdrawal: {
+            sms: tenant.notification_preferences?.savingsWithdrawal?.sms,
+            email: tenant.notification_preferences?.savingsWithdrawal?.email,
+          },
+          loanApproval: {
+            sms: tenant.notification_preferences?.loanApproval?.sms,
+            email: tenant.notification_preferences?.loanApproval?.email,
+          },
+          loanDisbursement: {
+            sms: tenant.notification_preferences?.loanDisbursement?.sms,
+            email: tenant.notification_preferences?.loanDisbursement?.email,
+          },
+          loanRepayment: {
+            sms: tenant.notification_preferences?.loanRepayment?.sms,
+            email: tenant.notification_preferences?.loanRepayment?.email,
+          },
+          feeDeduction: {
+            sms: tenant.notification_preferences?.feeDeduction?.sms,
+            email: tenant.notification_preferences?.feeDeduction?.email,
+          },
         },
       });
 
