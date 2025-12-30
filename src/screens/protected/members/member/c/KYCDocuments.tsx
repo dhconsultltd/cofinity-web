@@ -100,8 +100,8 @@ export default function KYCDocuments({ member }: { member: any }) {
       // Optional: sync with server
       queryClient.invalidateQueries({ queryKey: ["member", member.id] });
     },
-    onError: () => {
-      toast.error("Upload failed");
+    onError: (err: any) => {
+      toast.error("Upload failed", { description: err?.message });
       setUploading(null);
       setProgress(0);
     },

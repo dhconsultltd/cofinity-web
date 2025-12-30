@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, formatDate } from "date-fns";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { apiClient } from "@/lib/api-client";
 import { MEMBERS_API } from "@/constants";
+import { formatCurrency } from "@/lib/utils";
 
 // Helper to export data as CSV
 const exportToCSV = (data: any[], filename: string) => {
@@ -156,7 +157,7 @@ export default function TransactionsTab({ memberId }: { memberId: number }) {
                   className="hover:bg-neutral-50 transition-colors duration-200"
                 >
                   <TableCell className="font-medium">
-                    {/* {format(new Date(txn.createdAt || txn.date), "dd MMM yyyy")} */}
+                    {formatDate(new Date(txn.created_at), "dd MMM yyyy")}
                   </TableCell>
 
                   <TableCell>
@@ -180,12 +181,12 @@ export default function TransactionsTab({ memberId }: { memberId: number }) {
                   </TableCell>
 
                   <TableCell className="font-semibold">
-                    {txn.type?.toLowerCase() === "credit" ? "+" : "-"}$
-                    {Math.abs(txn.amount).toFixed(2)}
+                    {/* {txn.type?.toLowerCase() === "credit" ? "cr" : "-"} */}
+                    {formatCurrency(txn.amount)}
                   </TableCell>
 
                   <TableCell>
-                    {txn.status?.toLowerCase() === "success" && (
+                    {txn.status?.toLowerCase() === "completed" && (
                       <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                         Success
                       </Badge>

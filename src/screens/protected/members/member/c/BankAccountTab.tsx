@@ -54,6 +54,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Assuming member has bank_accounts relation (array)
 type BankAccount = {
@@ -140,7 +141,7 @@ export default function BankAccountTab({ memberId }: BankAccountTabProps) {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: BankAccountForm }) => {
-      await apiClient.put(MEMBERS_API.BANK_ACCOUNT(memberId, id), data);
+      await apiClient.put(MEMBERS_API.BANK_ACCOUNTS(memberId, id), data);
     },
     onSuccess: () => {
       toast.success("Bank account updated");
@@ -202,7 +203,9 @@ export default function BankAccountTab({ memberId }: BankAccountTabProps) {
 
   const deleteMutation = useMutation({
     mutationFn: async (accountId: number) => {
-      await apiClient.delete(MEMBERS_API.BANK_ACCOUNT(memberId, accountId));
+      await apiClient.delete(
+        MEMBERS_API.BANK_ACCOUNT_ITEM(memberId, accountId)
+      );
     },
     onSuccess: () => {
       toast.success("Bank account removed");
@@ -246,6 +249,12 @@ export default function BankAccountTab({ memberId }: BankAccountTabProps) {
     queryKey: ["banks"],
     queryFn: () => apiClient.get("/api/banks").then((res) => res.data),
   });
+
+  const handleAccountNumberBlur = () => {
+    if (watchedAccountNumber.length === 10 && watchedBankCode) {
+      verifyAccount();
+    }
+  };
 
   const handleBankChange = (value: string) => {
     setValue("bank_code", value);
@@ -293,6 +302,7 @@ export default function BankAccountTab({ memberId }: BankAccountTabProps) {
               Add Bank Account
             </Button>
           </DialogTrigger>
+
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Add New Bank Account</DialogTitle>
@@ -343,12 +353,14 @@ export default function BankAccountTab({ memberId }: BankAccountTabProps) {
                 )}
               </div> */}
 
-              <div>
+              <div className="space-y-3">
                 <Label htmlFor="account_number">Account Number</Label>
                 <Input
                   id="account_number"
                   {...register("account_number")}
                   placeholder="1234567890"
+                  maxLength={10}
+                  onBlur={handleAccountNumberBlur}
                 />
                 {errors.account_number && (
                   <p className="text-sm text-red-600 mt-1">
@@ -357,12 +369,42 @@ export default function BankAccountTab({ memberId }: BankAccountTabProps) {
                 )}
               </div>
 
-              <div>
+              <div className="min-h-[40px]">
+                {verifying && (
+                  <Alert>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <AlertDescription>Verifying account...</AlertDescription>
+                  </Alert>
+                )}
+
+                {verification && (
+                  <Alert className="border-green-600 bg-green-50">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800">
+                      Verified: <strong>{verification.account_name}</strong>
+                      <br />
+                      <span className="text-xs">
+                        {verification.bank_name} • {verification.account_number}
+                      </span>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {verifyError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{verifyError}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
+              <div className="space-y-3">
                 <Label htmlFor="account_name">Account Name</Label>
                 <Input
+                  readOnly={true}
                   id="account_name"
                   {...register("account_name")}
-                  placeholder="John Doe"
+                  placeholder="Resolved account name"
                 />
                 {errors.account_name && (
                   <p className="text-sm text-red-600 mt-1">
@@ -370,6 +412,27 @@ export default function BankAccountTab({ memberId }: BankAccountTabProps) {
                   </p>
                 )}
               </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  id="is_primary"
+                  type="checkbox"
+                  {...register("is_primary")}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="is_primary" className="mb-0">
+                  Mark as primary
+                </Label>
+              </div>
+
+              {/* When verification result is present, populate account_name (and bank_name) into the form */}
+              {verification &&
+                (() => {
+                  setValue("account_name", verification.account_name);
+                  // optionally fill bank_name from verification if you want
+                  setValue("bank_name", verification.bank_name || "");
+                  return null;
+                })()}
 
               <DialogFooter>
                 <Button type="submit" disabled={addMutation.isPending}>
@@ -412,22 +475,15 @@ export default function BankAccountTab({ memberId }: BankAccountTabProps) {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {account.is_primary && (
+                    {account.is_primary == true && (
                       <Badge variant="default">
                         <CheckCircle2 className="w-3 h-3 mr-1" />
                         Primary
                       </Badge>
                     )}
-                    {account.verified_at ? (
-                      <Badge variant="default" className="bg-green-600">
-                        Verified
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary">
-                        <AlertCircle className="w-3 h-3 mr-1" />
-                        Unverified
-                      </Badge>
-                    )}
+                    <Badge variant="default" className="bg-green-600">
+                      Verified
+                    </Badge>
                   </div>
                 </div>
               </CardHeader>

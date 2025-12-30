@@ -2,176 +2,225 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Mail, Send, Paperclip, Smile, Clock, User } from "lucide-react";
+import { Mail, Send, User, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api-client";
 import { MEMBERS_API } from "@/constants";
 
-const templates = [
+const emailTemplates = [
   {
     name: "Welcome Message",
-    subject: "Welcome to the Cooperative!",
-    body: "Dear {name},\n\nWelcome to our cooperative family! We're excited to have you...",
+    subject: "Welcome to {coop_name} Cooperative!",
+    body: `Dear {name},
+
+Welcome to the {coop_name} family! We're thrilled to have you join us.
+
+Your membership ID: {membership_id}
+
+Feel free to reach out if you have any questions.
+
+Best regards,
+{coop_name} Team`,
   },
   {
-    name: "Savings Reminder",
-    subject: "Monthly Savings Reminder",
-    body: "Hi {name},\n\nThis is a friendly reminder to complete your monthly savings of ₦{target}...",
+    name: "Monthly Savings Reminder",
+    subject: "Reminder: Monthly Savings Contribution",
+    body: `Hello {name},
+
+This is a gentle reminder that your monthly savings target of ₦{target} is due.
+
+Please make your contribution at your earliest convenience to stay on track.
+
+Thank you for your continued commitment!
+
+Regards,
+{coop_name} Team`,
   },
   {
-    name: "Loan Approval",
-    subject: "Your Loan Has Been Approved!",
-    body: "Congratulations {name}!\n\nYour loan of ₦{amount} has been approved and disbursed...",
+    name: "Loan Approval Notification",
+    subject: "Your Loan Application Has Been Approved!",
+    body: `Dear {name},
+
+Great news! Your loan application for ₦{amount} has been approved and funds have been disbursed to your account.
+
+Loan Reference: {reference}
+
+Please review your repayment schedule in your member portal.
+
+If you have any questions, feel free to contact us.
+
+Best regards,
+{coop_name} Team`,
   },
 ];
 
-export default function SendEmail({ member }: { member: any }) {
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
+interface SendEmailProps {
+  member: {
+    id: number;
+    first_name: string;
+    email?: string;
+    monthly_savings_target?: number;
+    membership_id?: string;
+  };
+  cooperativeName?: string; // You can pass this from context or parent
+}
 
-  const sendEmail = useMutation({
+export default function SendEmail({
+  member,
+  cooperativeName = "Your Cooperative",
+}: SendEmailProps) {
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+
+  const sendEmailMutation = useMutation({
     mutationFn: () =>
-      apiClient.post(MEMBERS_API.SENDEMAIL(member.id), { subject, message }),
+      apiClient.post(MEMBERS_API.SENDEMAIL(member.id), {
+        subject,
+        body,
+      }),
     onSuccess: () => {
-      toast.success("Email sent successfully!");
+      toast.success("Email sent successfully");
       setSubject("");
-      setMessage("");
+      setBody("");
     },
-    onError: () => toast.error("Failed to send email"),
+    onError: () => {
+      toast.error("Failed to send email");
+    },
   });
 
-  const applyTemplate = (template: (typeof templates)[0]) => {
-    setSubject(template.subject.replace("{name}", member.first_name));
-    setMessage(
-      template.body
-        .replace("{name}", member.first_name)
-        .replace(
-          "{target}",
-          Number(member.monthly_savings_target || 0).toLocaleString()
-        )
-    );
+  const applyTemplate = (template: (typeof emailTemplates)[0]) => {
+    const filledSubject = template.subject
+      .replace("{name}", member.first_name)
+      .replace("{coop_name}", cooperativeName);
+
+    const filledBody = template.body
+      .replace("{name}", member.first_name)
+      .replace("{coop_name}", cooperativeName)
+      .replace(
+        "{target}",
+        Number(member.monthly_savings_target || 0).toLocaleString()
+      )
+      .replace("{membership_id}", member.membership_id || "—")
+      .replace("{amount}", "—") // You can enhance this when you have loan context
+      .replace("{reference}", "—");
+
+    setSubject(filledSubject);
+    setBody(filledBody);
   };
 
+  const characterCount = body.length;
+  const isFormValid =
+    subject.trim().length > 0 && body.trim().length > 0 && !!member.email;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="space-y-8 max-w-3xl mx-auto">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            <Mail className="w-10 h-10 text-blue-600" />
-            Send Email
+          <h2 className="text-2xl font-semibold tracking-tight flex items-center gap-3">
+            <Mail className="w-6 h-6 text-muted-foreground" />
+            Compose Email
           </h2>
-          <p className="text-neutral-600 mt-1">
-            Communicate directly with {member.first_name}
+          <p className="text-sm text-muted-foreground mt-1">
+            Send a direct message to {member.first_name}
           </p>
         </div>
-        <div className="text-start">
-          <Badge variant="outline" className="text-lg px-4 py-2">
-            <User className="w-4 h-4 mr-2" />
-            {member.email || "No email"}
-          </Badge>
-        </div>
+
+        <Badge variant="outline" className="text-sm px-3 py-1">
+          <User className="w-3.5 h-3.5 mr-1.5" />
+          {member.email || "No email address"}
+        </Badge>
       </div>
 
-      <Card className="p-8 bg-linear-to-br from-blue-50/50 to-indigo-50/30 border-blue-200 shadow-xl">
-        <div className="space-y-6">
-          {/* To */}
-          <div>
-            <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
-              <User className="w-4 h-4" />
+      <Card className="border shadow-sm">
+        <div className="p-6 space-y-6">
+          {/* Recipient */}
+          <div className="space-y-2">
+            <Label htmlFor="to" className="text-sm font-medium">
               To
-            </label>
+            </Label>
             <Input
-              value={member.email || "No email address"}
+              id="to"
+              value={member.email || "No email address on record"}
               disabled
-              className="mt-2 bg-white"
+              className="bg-muted/40"
             />
           </div>
 
           {/* Subject */}
-          <div>
-            <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
-              <Mail className="w-4 h-4" />
+          <div className="space-y-2">
+            <Label htmlFor="subject" className="text-sm font-medium">
               Subject
-            </label>
+            </Label>
             <Input
+              id="subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Enter email subject..."
-              className="mt-2 text-lg"
+              className="text-base"
             />
           </div>
 
           {/* Quick Templates */}
-          <div>
-            <p className="text-sm font-semibold text-neutral-700 mb-3">
-              Quick Templates
-            </p>
-            <div className="flex flex-wrap gap-3">
-              {templates.map((t) => (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Quick Templates</Label>
+            <div className="flex flex-wrap gap-2">
+              {emailTemplates.map((template) => (
                 <Button
-                  key={t.name}
+                  key={template.name}
                   variant="outline"
                   size="sm"
-                  onClick={() => applyTemplate(t)}
-                  className="hover:bg-blue-50"
+                  onClick={() => applyTemplate(template)}
                 >
-                  {t.name}
+                  {template.name}
                 </Button>
               ))}
             </div>
           </div>
 
-          {/* Message */}
-          <div>
-            <label className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
-              <Smile className="w-4 h-4" />
+          {/* Message Body */}
+          <div className="space-y-2">
+            <Label htmlFor="body" className="text-sm font-medium">
               Message
-            </label>
+            </Label>
             <Textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type your message here..."
+              id="body"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Write your message here..."
               rows={12}
-              className="mt-2 text-base leading-relaxed resize-none"
+              className="resize-none text-base leading-relaxed font-normal"
             />
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-neutral-500">
-              <div className="flex gap-4">
-                <Button variant="ghost" size="sm" disabled>
-                  <Paperclip className="w-4 h-4 mr-2" />
-                  Attach
-                </Button>
-                <Button variant="ghost" size="sm" disabled>
-                  <Smile className="w-4 h-4" />
-                  Emoji
-                </Button>
+            <div className="flex justify-between items-center text-xs text-muted-foreground mt-1.5">
+              <div className="flex items-center gap-4">
+                <span>{characterCount} characters</span>
               </div>
-              <span>{message.length} characters</span>
             </div>
           </div>
 
-          {/* Send Button */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 border-t">
-            <Button variant="outline" size="lg">
-              Save as Draft
-            </Button>
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
+            <div className="flex-1" />
+
             <Button
               size="lg"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
-              onClick={() => sendEmail.mutate()}
-              disabled={!subject || !message || sendEmail.isPending}
+              disabled={!isFormValid || sendEmailMutation.isPending}
+              onClick={() => sendEmailMutation.mutate()}
+              className="min-w-[180px]"
             >
-              {sendEmail.isPending ? (
+              {sendEmailMutation.isPending ? (
                 <>
-                  <Clock className="w-5 h-5 mr-2 animate-spin" />
+                  <FileText className="w-4 h-4 mr-2 animate-spin" />
                   Sending...
                 </>
               ) : (
                 <>
-                  <Send className="w-5 h-5 mr-2" />
+                  <Send className="w-4 h-4 mr-2" />
                   Send Email
                 </>
               )}

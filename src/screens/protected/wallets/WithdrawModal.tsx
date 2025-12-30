@@ -1,33 +1,51 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
-import { apiClient } from '@/lib/api-client';
-import { formatCurrency } from '@/lib/formatCurrency';
+import { apiClient } from "@/lib/api-client";
+import { formatCurrency } from "@/lib/formatCurrency";
 
-import { toast } from 'sonner';
+import { toast } from "sonner";
 
 const schema = z.object({
-  amount: z.string().min(1, 'Amount is required').refine((val) => {
-    const num = Number(val);
-    return !isNaN(num) && num >= 1000;
-  }, { message: 'Minimum withdrawal is ₦1,000' }),
-  bank_code: z.string().min(1, 'Please select a bank'),
-  account_number: z.string().length(10, 'Account number must be 10 digits'),
-  description: z.string().min(5, 'Description must be at least 5 characters'),
+  amount: z
+    .string()
+    .min(1, "Amount is required")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 1000;
+      },
+      { message: "Minimum withdrawal is ₦1,000" }
+    ),
+  bank_code: z.string().min(1, "Please select a bank"),
+  account_number: z.string().length(10, "Account number must be 10 digits"),
+  description: z.string().min(5, "Description must be at least 5 characters"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -59,7 +77,9 @@ export default function WithdrawModal({
   onSuccess,
 }: WithdrawModalProps) {
   const queryClient = useQueryClient();
-  const [verification, setVerification] = useState<VerificationResult | null>(null);
+  const [verification, setVerification] = useState<VerificationResult | null>(
+    null
+  );
   const [verifying, setVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
 
@@ -73,20 +93,20 @@ export default function WithdrawModal({
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      amount: '',
-      bank_code: '',
-      account_number: '',
-      description: '',
+      amount: "",
+      bank_code: "",
+      account_number: "",
+      description: "",
     },
   });
 
-  const watchedBankCode = watch('bank_code');
-  const watchedAccountNumber = watch('account_number');
+  const watchedBankCode = watch("bank_code");
+  const watchedAccountNumber = watch("account_number");
 
   // Fetch banks
   const { data: banks = [], isLoading: banksLoading } = useQuery<Bank[]>({
-    queryKey: ['banks'],
-    queryFn: () => apiClient.get('/api/banks').then((res) => res.data),
+    queryKey: ["banks"],
+    queryFn: () => apiClient.get("/api/banks").then((res) => res.data),
   });
 
   // Verify account number (debounced manually on blur)
@@ -98,18 +118,17 @@ export default function WithdrawModal({
     setVerification(null);
 
     try {
-      const res = await apiClient.post('/api/banks/verify', {
+      const res = await apiClient.post("/api/banks/verify", {
         bank_code: watchedBankCode,
         account_number: watchedAccountNumber,
       });
 
       setVerification(res.data);
-      toast.success( 'Account Verified', {
+      toast.success("Account Verified", {
         description: `Resolved to: ${res.data.account_name}`,
       });
-
     } catch (err: any) {
-      const message = err?.message || 'Verification failed';
+      const message = err?.message || "Verification failed";
       setVerifyError(message);
       setVerification(null);
     } finally {
@@ -120,14 +139,15 @@ export default function WithdrawModal({
   // Withdraw mutation
   const withdrawMutation = useMutation({
     mutationFn: (data: FormData) =>
-      apiClient.post('/platform/withdraw', {
+      apiClient.post("/platform/withdraw", {
         amount: Number(data.amount),
         description: data.description,
         // Optional: send bank details for audit (not needed for payout since we use sweep account)
       }),
     onSuccess: () => {
-      toast.success( 'Withdrawal Successful',{
-        description: 'Funds have been queued for transfer to your sweep account.',
+      toast.success("Withdrawal Successful", {
+        description:
+          "Funds have been queued for transfer to your sweep account.",
       });
       reset();
       setVerification(null);
@@ -135,23 +155,23 @@ export default function WithdrawModal({
       onSuccess?.();
     },
     onError: (err: any) => {
-      toast.error( 'Withdrawal Failed',{
-        description: err?.message || 'Please try again',
+      toast.error("Withdrawal Failed", {
+        description: err?.message || "Please try again",
       });
     },
   });
 
   const onSubmit = (data: FormData) => {
     if (Number(data.amount) > currentBalance) {
-      toast.error( 'Insufficient Balance',{
+      toast.error("Insufficient Balance", {
         description: `Available: ${formatCurrency(currentBalance)}`,
       });
       return;
     }
 
     if (!verification) {
-      toast.error( 'Verify Account First',{
-        description: 'Please verify the account number before withdrawing.',
+      toast.error("Verify Account First", {
+        description: "Please verify the account number before withdrawing.",
       });
       return;
     }
@@ -167,7 +187,7 @@ export default function WithdrawModal({
   };
 
   const handleBankChange = (value: string) => {
-    setValue('bank_code', value);
+    setValue("bank_code", value);
     setVerification(null);
     setVerifyError(null);
   };
@@ -178,12 +198,16 @@ export default function WithdrawModal({
         <DialogHeader>
           <DialogTitle>Withdraw to Sweep Bank Account</DialogTitle>
           <DialogDescription>
-            Transfer funds from your available balance to your configured sweep account.
+            Transfer funds from your available balance to your configured sweep
+            account.
           </DialogDescription>
         </DialogHeader>
 
         <div className="text-sm text-muted-foreground mb-4">
-          Available Balance: <span className="font-semibold">{formatCurrency(currentBalance)}</span>
+          Available Balance:{" "}
+          <span className="font-semibold">
+            {formatCurrency(currentBalance)}
+          </span>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -195,27 +219,67 @@ export default function WithdrawModal({
               type="number"
               step="0.01"
               placeholder="50000"
-              {...register('amount')}
+              {...register("amount")}
             />
-            {errors.amount && <p className="text-sm text-destructive">{errors.amount.message}</p>}
+            {errors.amount && (
+              <p className="text-sm text-destructive">
+                {errors.amount.message}
+              </p>
+            )}
           </div>
 
           {/* Bank Selection */}
           <div className="space-y-2">
             <Label htmlFor="bank">Bank</Label>
             <Select onValueChange={handleBankChange} disabled={banksLoading}>
-              <SelectTrigger>
-                <SelectValue placeholder={banksLoading ? 'Loading banks...' : 'Select a bank'} />
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={
+                    banksLoading ? "Loading banks..." : "Select a bank"
+                  }
+                />
               </SelectTrigger>
+
               <SelectContent>
-                {banks.map((bank) => (
-                  <SelectItem key={bank.id} value={bank.code}>
-                    {bank.name}
-                  </SelectItem>
-                ))}
+                {/* simple client-side search (no new hooks) */}
+                <div className="px-2 py-2">
+                  <input
+                    type="search"
+                    placeholder="Search banks..."
+                    className="w-full rounded border p-2 text-sm"
+                    onInput={(e) => {
+                      const q = (
+                        e.currentTarget as HTMLInputElement
+                      ).value.toLowerCase();
+                      // find option elements rendered by SelectItem (role="option") and show/hide based on query
+                      const container =
+                        e.currentTarget.parentElement?.parentElement;
+                      const options =
+                        container?.querySelectorAll('[role="option"]');
+                      options?.forEach((el) => {
+                        const txt = el.textContent?.toLowerCase() || "";
+                        (el as HTMLElement).style.display = txt.includes(q)
+                          ? ""
+                          : "none";
+                      });
+                    }}
+                  />
+                </div>
+
+                <SelectContent>
+                  {banks.map((bank) => (
+                    <SelectItem key={bank.id} value={bank.code}>
+                      {bank.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </SelectContent>
             </Select>
-            {errors.bank_code && <p className="text-sm text-destructive">{errors.bank_code.message}</p>}
+            {errors.bank_code && (
+              <p className="text-sm text-destructive">
+                {errors.bank_code.message}
+              </p>
+            )}
           </div>
 
           {/* Account Number */}
@@ -225,11 +289,13 @@ export default function WithdrawModal({
               id="account_number"
               placeholder="0123456789"
               maxLength={10}
-              {...register('account_number')}
+              {...register("account_number")}
               onBlur={handleAccountNumberBlur}
             />
             {errors.account_number && (
-              <p className="text-sm text-destructive">{errors.account_number.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.account_number.message}
+              </p>
             )}
           </div>
 
@@ -248,7 +314,9 @@ export default function WithdrawModal({
                 <AlertDescription className="text-green-800">
                   Verified: <strong>{verification.account_name}</strong>
                   <br />
-                  <span className="text-xs">{verification.bank_name} • {verification.account_number}</span>
+                  <span className="text-xs">
+                    {verification.bank_name} • {verification.account_number}
+                  </span>
                 </AlertDescription>
               </Alert>
             )}
@@ -268,16 +336,22 @@ export default function WithdrawModal({
               id="description"
               placeholder="e.g., Payment for operational expenses"
               rows={3}
-              {...register('description')}
+              {...register("description")}
             />
             {errors.description && (
-              <p className="text-sm text-destructive">{errors.description.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.description.message}
+              </p>
             )}
           </div>
 
           {/* Submit */}
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -286,8 +360,8 @@ export default function WithdrawModal({
                 isSubmitting ||
                 withdrawMutation.isPending ||
                 !verification ||
-                Number(watch('amount') || 0) > currentBalance ||
-                Number(watch('amount') || 0) < 1000
+                Number(watch("amount") || 0) > currentBalance ||
+                Number(watch("amount") || 0) < 1000
               }
             >
               {isSubmitting || withdrawMutation.isPending ? (
@@ -296,7 +370,7 @@ export default function WithdrawModal({
                   Processing...
                 </>
               ) : (
-                'Request Withdrawal'
+                "Request Withdrawal"
               )}
             </Button>
           </div>

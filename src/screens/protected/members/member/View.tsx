@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Edit3,
   ArrowLeft,
+  Building2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,9 @@ const NextOfKinTab = React.lazy(
 const BankAccountTab = React.lazy(
   () => import("@/screens/protected/members/member/c/BankAccountTab")
 );
+const SharesTab = React.lazy(
+  () => import("@/screens/protected/members/member/c/SharesTab")
+);
 
 export default function ViewMember() {
   const { id } = useParams<{ id: string }>();
@@ -81,6 +85,7 @@ export default function ViewMember() {
     { value: "overview", label: "Overview", icon: CreditCard },
     { value: "savings", label: "Savings", icon: Wallet },
     { value: "loans", label: "Loans", icon: Landmark },
+    { value: "shares", label: "Shares", icon: Building2 },
     { value: "transactions", label: "Transactions", icon: FileText },
     { value: "bank-accounts", label: "Bank Accounts", icon: Banknote },
     { value: "next-of-kin", label: "Next of Kin", icon: Users },
@@ -130,6 +135,9 @@ export default function ViewMember() {
         {activeTab === "overview" && <AccountOverview member={member} />}
         {activeTab === "savings" && <SavingsAccountTab memberId={member.id} />}
         {activeTab === "loans" && <LoansTab memberId={member.id} />}
+        {activeTab === "shares" && (
+          <SharesTab memberId={member.id} member={member} />
+        )}
         {activeTab === "transactions" && (
           <TransactionsTab memberId={member.id} />
         )}

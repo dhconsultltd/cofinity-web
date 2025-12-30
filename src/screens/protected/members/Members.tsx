@@ -212,7 +212,6 @@ export default function Members() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button
-                        variant="primary"
                         size="sm"
                         onClick={() => handleviewmember(member.id)}
                       >

@@ -52,7 +52,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-
+import { formatCurrency } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 /* ================= TYPES ================= */
 
 type SavingsAccount = {
@@ -62,7 +63,7 @@ type SavingsAccount = {
   balance: number;
   total_deposits: number;
   total_withdrawals: number;
-  interest_earned: number;
+  total_interest_earned: number;
   status: "active" | "dormant" | "closed";
   opened_at: string;
   last_transaction_at?: string | null;
@@ -95,6 +96,8 @@ const createSchema = z.object({
 
 export default function SavingsAccountTab({ memberId }: Props) {
   const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
   const [createOpen, setCreateOpen] = useState(false);
 
   /* ===== Queries ===== */
@@ -160,14 +163,6 @@ export default function SavingsAccountTab({ memberId }: Props) {
     onError: (err: any) =>
       toast.error(err?.message || "Failed to create account"),
   });
-
-  const formatCurrency = (amount: number | undefined) =>
-    amount === undefined || amount === null
-      ? "₦0.00"
-      : `₦${amount.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`;
 
   /* ================= LOADING ================= */
 
@@ -286,7 +281,7 @@ export default function SavingsAccountTab({ memberId }: Props) {
                   <div className="text-center">
                     <p className="text-sm text-gray-600">Interest Earned</p>
                     <p className="text-xl text-blue-600 font-semibold">
-                      {formatCurrency(account.interest_earned)}
+                      {formatCurrency(account.total_interest_earned)}
                     </p>
                   </div>
                 </div>
@@ -320,9 +315,11 @@ export default function SavingsAccountTab({ memberId }: Props) {
                 </Table>
 
                 <div className="mt-6">
-                  <Button variant="outline">
+                  <Button
+                    onClick={() => navigate(`/savings/accounts/${account.id}`)}
+                  >
                     <History className="w-4 h-4 mr-2" />
-                    View Transactions
+                    View Account
                   </Button>
                 </div>
               </CardContent>

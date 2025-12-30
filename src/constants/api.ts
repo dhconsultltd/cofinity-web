@@ -61,7 +61,11 @@ export const MEMBERS_API = {
     `${API_BASE}/api/members/${id}/savings-accounts`,
 
   BANK_ACCOUNTS: (memberId: string | number) =>
-    `${API_BASE}/api/members/${memberId}/bank-accounts`,
+    `${API_BASE}/api/members/${memberId}/bank-account`,
+  BANK_ACCOUNT_ITEM: (
+    memberId: string | number,
+    bankAccountId: string | number
+  ) => `${API_BASE}/api/members/${memberId}/bank-account/${bankAccountId}`,
 
   NEXT_OF_KIN_ITEM: (memberId: string | number, nokId: string | number) =>
     `${API_BASE}/api/members/${memberId}/next-of-kin/${nokId}`,

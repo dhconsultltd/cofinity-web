@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Send } from "lucide-react";
-import toast from "react-hot-toast";
-
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
