@@ -36,8 +36,6 @@ const Login: React.FC = () => {
 
   //check if user is already authenticated and redirect back to dashboard
 
-  alert("Checking authentication status..." + isAuthenticated);
-
   useEffect(() => {
     const checkAuth = async () => {
       if (isAuthenticated) {
