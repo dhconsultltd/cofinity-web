@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,21 +8,24 @@ import { LoanDistributionChart } from "@/screens/protected/ReportPage/c/LoanDist
 import { RevenueBreakdownChart } from "@/screens/protected/ReportPage/c/RevenueBreakdownChart";
 import { KycVerificationChart } from "@/screens/protected/ReportPage/c/KycVerificationChart";
 import { SavingsTrendChart } from "@/screens/protected/ReportPage/c/SavingsTrendChart";
-import { Activity, TrendingUp, Users, PiggyBank, FileText, Shield } from "lucide-react";
+import {
+  Activity,
+  TrendingUp,
+  Users,
+  PiggyBank,
+  FileText,
+  Shield,
+} from "lucide-react";
 
 import { SummaryCard } from "@/screens/protected/ReportPage/c/SummaryCard";
 
-
 import { ReportHeader } from "@/screens/protected/ReportPage/c/ReportHeader";
-
- 
 
 // import jsPDF from "jspdf";
 // import Papa from "papaparse";
 // import autoTable from "jspdf-autotable";
- import { useState } from "react";
+import { useState } from "react";
 import { ResponsiveReportNav } from "./c/VerticalTabs";
-
 
 import {
   useFinancialSummary,
@@ -31,17 +34,12 @@ import {
   useRevenueBreakdown,
   useKycVerification,
   useSavingsTrend,
-} from '@/hooks/useReports';
+} from "@/hooks/useReports";
 
-import { Skeleton } from '@/components/ui/skeleton';
-
-
-
-
-
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ReportsPage() {
-  const [activeTab, setActiveTab] = useState('financial');
+  const [activeTab, setActiveTab] = useState("financial");
   const year = 2025;
 
   const financial = useFinancialSummary(year);
@@ -53,11 +51,13 @@ export default function ReportsPage() {
 
   console.log(loans?.data);
 
-
- 
-
-  const isLoading = financial.isLoading || growth.isLoading || loans.isLoading || 
-                    revenue.isLoading || kyc.isLoading || savings.isLoading;
+  const isLoading =
+    financial.isLoading ||
+    growth.isLoading ||
+    loans.isLoading ||
+    revenue.isLoading ||
+    kyc.isLoading ||
+    savings.isLoading;
 
   const summaryMetrics = [
     {
@@ -70,8 +70,10 @@ export default function ReportsPage() {
     },
     {
       title: "Total Savings",
-      value: savings.data?.summary?.total_savings_balance 
-        ? `₦${(savings.data.summary.total_savings_balance / 1000000).toFixed(2)}M`
+      value: savings.data?.summary?.total_savings_balance
+        ? `₦${(savings.data.summary.total_savings_balance / 1000000).toFixed(
+            2
+          )}M`
         : "₦0",
       change: "+12%", // can enhance with YoY later
       icon: PiggyBank,
@@ -88,7 +90,7 @@ export default function ReportsPage() {
     },
     {
       title: "Monthly Revenue",
-      value: revenue.data?.summary?.total_revenue 
+      value: revenue.data?.summary?.total_revenue
         ? `₦${(revenue.data.summary.total_revenue / 1000).toFixed(0)}K`
         : "₦0",
       change: "+18%",
@@ -98,8 +100,11 @@ export default function ReportsPage() {
     },
     {
       title: "KYC Complete",
-      value: kyc.data?.summary?.bvn_verified_pct 
-        ? `${Math.max(kyc.data.summary.bvn_verified_pct, kyc.data.summary.nin_verified_pct)}%`
+      value: kyc.data?.summary?.bvn_verified_pct
+        ? `${Math.max(
+            kyc.data.summary.bvn_verified_pct,
+            kyc.data.summary.nin_verified_pct
+          )}%`
         : "0%",
       change: "+5%",
       icon: Shield,
@@ -108,7 +113,7 @@ export default function ReportsPage() {
     },
     {
       title: "Net Cash Flow",
-      value: financial.data?.summary?.net_flow 
+      value: financial.data?.summary?.net_flow
         ? `₦${(financial.data.summary.net_flow / 1000).toFixed(0)}K`
         : "₦0",
       change: "+10%",
@@ -129,21 +134,32 @@ export default function ReportsPage() {
     }
 
     switch (activeTab) {
-      case 'financial': return <FinancialSummaryChart data={financial?.data?.data} />;
-      case 'growth': return <UserGrowthChart data={growth?.data?.chart} />;
-      case 'loans': return <LoanDistributionChart data={loans?.data?.data} />;
-      case 'revenue': return <RevenueBreakdownChart data={revenue?.data?.data} />;
-      case 'kyc': return <KycVerificationChart data={kyc.data.summary} />;
-      case 'savings': return <SavingsTrendChart data={savings?.data?.data} />;
-      default: return null;
+      case "financial":
+        return <FinancialSummaryChart data={financial?.data?.data} />;
+      case "growth":
+        return <UserGrowthChart data={growth?.data?.chart} />;
+      case "loans":
+        return <LoanDistributionChart data={loans?.data?.data} />;
+      case "revenue":
+        return <RevenueBreakdownChart data={revenue?.data?.data} />;
+      case "kyc":
+        return <KycVerificationChart data={kyc.data.summary} />;
+      case "savings":
+        return <SavingsTrendChart data={savings?.data?.data} />;
+      default:
+        return null;
     }
   };
 
-  const exportCSV = () => { /* implement with real data */ };
-  const exportPDF = () => { /* implement with real data */ };
+  const exportCSV = () => {
+    /* implement with real data */
+  };
+  const exportPDF = () => {
+    /* implement with real data */
+  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background p-4">
       <ReportHeader onExportCSV={exportCSV} onExportPDF={exportPDF} />
 
       <div className="container mx-auto px-4 py-8">
@@ -159,16 +175,12 @@ export default function ReportsPage() {
       <div className="flex flex-col md:flex-row">
         <ResponsiveReportNav activeTab={activeTab} onTabChange={setActiveTab} />
         <main className="flex-1 p-6 md:p-8">
-          <div className="max-w-6xl mx-auto">
-            {renderContent()}
-          </div>
+          <div className="max-w-6xl mx-auto">{renderContent()}</div>
         </main>
       </div>
     </div>
   );
 }
-
-
 
 // export default function ReportsPage() {
 //   // Mock summary data (will come from API later)
@@ -189,8 +201,6 @@ export default function ReportsPage() {
 //     // Add more rows as needed...
 //   ];
 
-
-
 //   const tabItems = [
 //     { value: "financial", label: "Financial Summary", icon: Activity, content: <FinancialSummaryChart /> },
 //     { value: "growth", label: "User Growth", icon: Users, content: <UserGrowthChart /> },
@@ -199,9 +209,6 @@ export default function ReportsPage() {
 //     { value: "kyc", label: "KYC Verification", icon: Shield, content: <KycVerificationChart /> },
 //     { value: "savings", label: "Savings Trend", icon: PiggyBank, content: <SavingsTrendChart /> },
 //   ];
-
-
-
 
 //   const exportCSVs = () => {
 //     const csv = Papa.unparse(exportData);
@@ -229,11 +236,8 @@ export default function ReportsPage() {
 //     doc.save(`cooperative-reports-${new Date().toISOString().split('T')[0]}.pdf`);
 //   };
 
-
-
 //   const [activeTab, setActiveTab] = useState('financial');
 
- 
 //   const exportCSV = () => { /* same */ };
 //   const exportPDF = () => { /* same */ };
 
@@ -245,14 +249,9 @@ export default function ReportsPage() {
 //       case 'revenue': return <RevenueBreakdownChart />;
 //       case 'kyc': return <KycVerificationChart />;
 //       case 'savings': return <SavingsTrendChart />;
-//       default: return null; 
+//       default: return null;
 //     }
 //   };
-
-
-
-
-  
 
 //   return (
 
@@ -271,7 +270,7 @@ export default function ReportsPage() {
 //       {/* Layout: Nav + Content */}
 //       <div className="flex flex-col md:flex-row container  ">
 //         <ResponsiveReportNav activeTab={activeTab} onTabChange={setActiveTab} />
-        
+
 //         <main className="flex-1 p-6 md:p-8 overflow-auto w-full ">
 //           <div className="max-w-6xl mx-auto">
 //             {renderContent()}

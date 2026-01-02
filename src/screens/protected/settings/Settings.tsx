@@ -60,6 +60,8 @@ const settingsSchema = z.object({
   address: z.string().optional(),
   registration_number: z.string().optional(),
 
+  auto_renew_plan: z.boolean(),
+
   settlement_type: z.enum(["collection", "wallet"]),
   sweep_bank_name: z.string().optional(),
   sweep_bank_code: z.string().optional(),
@@ -423,6 +425,25 @@ export default function SettingsPage() {
                       Certificate uploaded
                     </p>
                   )}
+                </div>
+
+                <div className="md:col-span-2 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="font-medium">Auto-Renew Plan</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Automatically renew your previous subscription plan when
+                        it expires
+                      </p>
+                    </div>
+
+                    <Switch
+                      checked={watch("auto_renew_plan")}
+                      onCheckedChange={(checked) =>
+                        setValue("auto_renew_plan", checked)
+                      }
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -71,11 +71,11 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   return (
     <>
       <aside
-        className={`bg-black text-white w-64 p-6 flex flex-col justify-between fixed h-screen lg:static inset-y-0 left-0 transform ${
+        className={`bg-black text-white w-64 p-6 flex flex-col fixed h-screen lg:static inset-y-0 left-0 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 transition-transform duration-300 ease-in-out z-40`}
       >
-        <div>
+        <div className="flex-1 overflow-y-auto scrollbar-hide">
           <div className="hidden lg:flex items-center gap-3 mb-8">
             <img
               className="w-40 h-auto"

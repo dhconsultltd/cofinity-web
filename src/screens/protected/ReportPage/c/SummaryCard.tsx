@@ -1,32 +1,42 @@
-'use client';
+"use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import {  Download } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface SummaryCardProps {
   title: string;
   value: string;
   change: string;
-  icon: Download;
-  color: string; // tailwind text color class
+  icon: LucideIcon;
+  color: string; // e.g. "text-blue-600"
 }
 
-export function SummaryCard({ title, value, change, icon: Icon, color }: SummaryCardProps) {
-  const isPositive = change.startsWith('+');
-  
+export function SummaryCard({
+  title,
+  value,
+  change,
+  icon: Icon,
+  color,
+}: SummaryCardProps) {
+  const isPositive = change.startsWith("+");
+
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6 flex justify-between items-center">
+      <CardContent className="p-6 flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>
-          <h3 className="text-2xl font-bold mt-2">{value}</h3>
-          <span className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+          <h3 className="mt-2 text-2xl font-bold">{value}</h3>
+          <p
+            className={`mt-1 text-sm font-medium ${
+              isPositive ? "text-green-600" : "text-red-600"
+            }`}
+          >
             {change} vs last month
-          </span>
+          </p>
         </div>
-        <div className={`p-3 rounded-lg bg-opacity-10 ${color.replace('text-', 'bg-')}`}>
-          <Icon className={`h-6 w-6 ${color}`} />
-        </div>
+
+        {/* Icon only — no background container */}
+        <Icon className={`h-7 w-7 ${color}`} />
       </CardContent>
     </Card>
   );
