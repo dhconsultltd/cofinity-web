@@ -1,4 +1,4 @@
- import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Mail, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import  { fetchCsrfToken } from "@/lib/sanctum";
+import { fetchCsrfToken } from "@/lib/sanctum";
 import { AUTH_API } from "@/constants/api";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/lib/axios";
@@ -32,9 +32,8 @@ const VerifyEmail: React.FC = () => {
     }
   }, [email, navigate]);
 
-
   const [code, setCode] = useState<string[]>(["", "", "", "", "", ""]);
-   const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -64,12 +63,15 @@ const VerifyEmail: React.FC = () => {
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newCode.every(digit => digit !== "") && index === 5) {
+    if (newCode.every((digit) => digit !== "") && index === 5) {
       handleVerify(newCode.join(""));
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === "ArrowLeft" && index > 0) {
@@ -99,7 +101,9 @@ const VerifyEmail: React.FC = () => {
     const verificationCode = codeToVerify || code.join("");
 
     if (verificationCode.length !== 6) {
-      toast.error("Incomplete code", { description: "Please enter all 6 digits." });
+      toast.error("Incomplete code", {
+        description: "Please enter all 6 digits.",
+      });
       return;
     }
 
@@ -162,7 +166,9 @@ const VerifyEmail: React.FC = () => {
 
   const handleUpdateEmail = () => {
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      toast.error("Invalid email", { description: "Please enter a valid email address." });
+      toast.error("Invalid email", {
+        description: "Please enter a valid email address.",
+      });
       return;
     }
 
@@ -227,7 +233,7 @@ const VerifyEmail: React.FC = () => {
                     size="sm"
                     className="flex-1"
                     onClick={() => {
-                       setIsEditingEmail(false);
+                      setIsEditingEmail(false);
                     }}
                   >
                     Cancel
@@ -246,18 +252,26 @@ const VerifyEmail: React.FC = () => {
 
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-center block">Enter verification code</Label>
+              <Label className="text-center block">
+                Enter verification code
+              </Label>
               <div className="flex gap-2 justify-center">
                 {code.map((digit, index) => (
                   <Input
                     key={index}
-                    ref={(el) => { inputRefs.current[index] = el; }}
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
                     value={digit}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCodeChange(index, e.target.value)}
-                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleCodeChange(index, e.target.value)
+                    }
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+                      handleKeyDown(index, e)
+                    }
                     onPaste={index === 0 ? handlePaste : undefined}
                     className="w-12 h-14 text-center text-xl font-semibold"
                     disabled={isVerifying}
@@ -269,7 +283,7 @@ const VerifyEmail: React.FC = () => {
             <Button
               className="w-full bg-black hover:bg-neutral-800 h-12"
               onClick={() => handleVerify()}
-              disabled={isVerifying || code.some(d => d === "")}
+              disabled={isVerifying || code.some((d) => d === "")}
             >
               {isVerifying ? (
                 <>
@@ -311,9 +325,9 @@ const VerifyEmail: React.FC = () => {
               <p className="text-xs text-neutral-600">
                 Tip: You can paste the entire 6-digit code
               </p>
-              <p className="text-xs text-neutral-500">
+              {/* <p className="text-xs text-neutral-500">
                 For testing, use: <span className="font-mono font-semibold">123456</span>
-              </p>
+              </p> */}
             </div>
           </CardContent>
         </Card>

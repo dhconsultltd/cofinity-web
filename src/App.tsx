@@ -32,7 +32,6 @@ import SavingsAccountDetail from "./screens/protected/savings/SavingsAccountDeta
 import MemberShareAccountsPage from "./screens/protected/shares/Shares";
 import SharesPlansPage from "./screens/protected/shares/SharesProductSetting";
 import TransactionsPage from "./screens/protected/transactions/Transactions";
-import Kyc from "./pages/Kyc";
 import ReportsPage from "./screens/protected/ReportPage/ReportPage";
 import TenantUsersPage from "./screens/protected/users/Users";
 import Settings from "./screens/protected/settings/Settings";
@@ -50,6 +49,15 @@ import UpgradePlanPage from "./screens/protected/billing/Upgrade";
 import NotFound from "./screens/NotFound";
 import Error500 from "./screens/errors/500";
 import BroadcastMessage from "./screens/protected/broadcast/BroadcastMessage";
+import BillingStatusPage from "./screens/protected/billing/Payment";
+import LandingPage from "./screens/GuestPages/LandingPage";
+import AboutUs from "./screens/GuestPages/AboutUs";
+import Compliance from "./screens/GuestPages/Compliance";
+import CookiePolicy from "./screens/GuestPages/CookiePolicy";
+import Contact from "./screens/GuestPages/Contact";
+import TermsOfService from "./screens/GuestPages/TermsOfService";
+import PrivacyPolicy from "./screens/GuestPages/PrivacyPolicy";
+import ScrollToTop from "@/components/ScrollToTop";
 
 function App() {
   const location = useLocation();
@@ -64,6 +72,17 @@ function App() {
     "/create-cooperative",
     "/choose-plan",
     "/500",
+    "/",
+    "/index",
+    "/about",
+    "/contact",
+    "/pricing",
+    "/features",
+    "/create-account",
+    "/compliance",
+    "/cookie-policy",
+    "/terms-of-service",
+    "/privacy-policy",
   ];
 
   const isAuthPage = authPaths.includes(location.pathname);
@@ -93,6 +112,7 @@ function App() {
   return (
     <>
       <Toaster position="top-right" richColors />
+      <ScrollToTop />
       <Routes>
         <Route path="/500" element={<Error500 />} />
 
@@ -102,7 +122,17 @@ function App() {
       {/* Auth / Public Routes – no Layout */}
       {isAuthPage ? (
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/index" element={<Navigate to="/" />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/compliance" element={<Compliance />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/pricing" element={<Navigate to="/" />} />
+          <Route path="/features" element={<Navigate to="/" />} />
+          <Route path="/create-account" element={<Navigate to="/signup" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/signup" element={<Signup />} />
@@ -179,7 +209,6 @@ function App() {
               <Route path="/shares-plan" element={<SharesPlansPage />} />
 
               <Route path="/transactions" element={<TransactionsPage />} />
-              <Route path="/kyc" element={<Kyc />} />
               <Route path="/report" element={<ReportsPage />} />
               <Route path="/user" element={<TenantUsersPage />} />
               <Route path="/settings" element={<Settings />} />
@@ -200,6 +229,7 @@ function App() {
               {/* Billing */}
               <Route path="/billing" element={<BillingPage />} />
               <Route path="/billing/upgrade" element={<UpgradePlanPage />} />
+              <Route path="/billing/payment" element={<BillingStatusPage />} />
 
               {/* 404 inside protected area – renders inside Layout */}
               <Route path="*" element={<NotFound />} />

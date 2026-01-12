@@ -1,14 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import {
-  Check,
-  Calendar,
-  Clock,
-  Zap,
-  AlertCircle,
-  ArrowLeft,
-} from "lucide-react";
+import { useState, useMemo, useEffect, use } from "react";
+import { Check, Calendar, Clock, AlertCircle, ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import apiClient from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
 import { APIS } from "@/constants";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -39,9 +32,9 @@ interface Plan {
 }
 
 interface Usage {
-  members: { used: number; limit: number | "Unlimited" };
-  admins: { used: number; limit: number | "Unlimited" };
-  active_loans: { used: number; limit: number | "Unlimited" };
+  members: { used: number; limit: number | string };
+  admins: { used: number; limit: number | string };
+  active_loans: { used: number; limit: number | string; active_loans: number };
 }
 
 const formatPrice = (n: number) =>
@@ -64,7 +57,7 @@ export default function UpgradePlanPage() {
 
         const [plansRes, summaryRes] = await Promise.all([
           apiClient.get(APIS.GET_PLANS),
-          apiClient.get("/api/dashboard/summary"),
+          apiClient.get("/api/dashboard/summary"), // Keep existing source; works with your current backend
         ]);
 
         const transformedPlans: Plan[] = plansRes.data.map((p: any) => {
@@ -106,9 +99,8 @@ export default function UpgradePlanPage() {
 
         setPlans(transformedPlans);
 
-        // Extract current plan & usage from dashboard summary
         const sub = summaryRes.data.subscription;
-        setCurrentPlanId(sub.plan_id || null); // assume plan_id is returned, or map by slug/name
+        setCurrentPlanId(sub.plan_id || null);
 
         setUsage({
           members: sub.members,
@@ -130,45 +122,59 @@ export default function UpgradePlanPage() {
       const raw = plan[`price_${billing}`];
       const price = Number(raw) || 0;
 
+      const periodLabel =
+        billing === "monthly"
+          ? "Month"
+          : billing === "quarterly"
+          ? "Quarter"
+          : "Year";
+
       return {
         ...plan,
         price,
         displayPrice: plan.custom ? "Let's Talk" : formatPrice(price),
-        period:
-          billing === "monthly"
-            ? "/month"
-            : billing === "quarterly"
-            ? "/3 months"
-            : "/year",
+        periodLabel,
       };
     });
   }, [plans, billing]);
 
-  // Downgrade protection logic
+  // Downgrade protection
   const canSelectPlan = (plan: (typeof pricedPlans)[0]) => {
     if (plan.custom) return true;
 
-    const memberLimit = plan.features.find((f) => f.includes("Members")) || "";
-    const adminLimit = plan.features.find((f) => f.includes("Admins")) || "";
-    const loanLimit =
+    const memberLimitStr =
+      plan.features.find((f) => f.includes("Members")) || "";
+    const adminLimitStr = plan.features.find((f) => f.includes("Admins")) || "";
+    const loanLimitStr =
       plan.features.find((f) => f.includes("Active Loans")) || "";
 
-    const getLimit = (str: string) => {
-      const match = str.match(/(\d+|Unlimited)/);
+    const getLimit = (str: string): number => {
+      const match = str.match(/[\d,]+|Unlimited/);
       return match
-        ? match[1] === "Unlimited"
+        ? match[0] === "Unlimited"
           ? Infinity
-          : Number(match[1])
+          : Number(match[0].replace(/,/g, ""))
         : Infinity;
     };
 
     if (!usage) return true;
 
+    console.log("Checking limits:", {
+      membersUsed: usage.members.used,
+      memberLimit: getLimit(memberLimitStr),
+      adminsUsed: usage.admins,
+      adminLimit: getLimit(adminLimitStr),
+      loansUsed: usage.active_loans?.active_loans,
+      loanLimit: getLimit(loanLimitStr),
+    });
+
     return (
-      usage.members.used <= getLimit(memberLimit) &&
-      usage.admins.used <= getLimit(adminLimit) &&
-      usage.active_loans.used <= getLimit(loanLimit)
+      usage.members.used <= getLimit(memberLimitStr) &&
+      usage.admins.used <= getLimit(adminLimitStr) &&
+      usage.active_loans?.active_loans <= getLimit(loanLimitStr)
     );
+
+    // return usage.members.used <= getLimit(memberLimitStr);
   };
 
   const handleSelect = async (planId: number) => {
@@ -211,6 +217,8 @@ export default function UpgradePlanPage() {
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
     } finally {
+      //stop the toast loader
+      toast.dismiss("plan-toast");
       setProcessing(false);
     }
   };
@@ -230,16 +238,16 @@ export default function UpgradePlanPage() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
-      <div className=" mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Upgrade or Change Plan</h1>
             <p className="text-muted-foreground mt-2">
-              Select a new plan or renew your subscription
+              Select a new plan that fits your cooperative’s growth
             </p>
           </div>
-          <Button variant="outline" onClick={() => router.back()}>
+          <Button variant="outline" onClick={() => router(-1)}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Billing
           </Button>
@@ -317,7 +325,7 @@ export default function UpgradePlanPage() {
                     </div>
                     {!plan.custom && plan.price > 0 && (
                       <div className="text-sm text-gray-500 mt-1">
-                        {plan.period}
+                        per {plan.periodLabel.toLowerCase()}
                       </div>
                     )}
                   </div>
@@ -365,7 +373,7 @@ export default function UpgradePlanPage() {
         <div className="text-center text-sm text-gray-600">
           Need help choosing?{" "}
           <a
-            href="mailto:support@cooperative.com"
+            href="mailto:support@cofinity.ng"
             className="font-medium underline"
           >
             Contact support

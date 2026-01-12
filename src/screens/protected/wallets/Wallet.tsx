@@ -104,7 +104,7 @@ export default function WalletPage() {
   }, []);
 
   const handleAutoSweepSettings = () => {
-    router("/settings/auto-sweep");
+    router("/settings");
   };
 
   if (!isOwnerOrAdmin) {

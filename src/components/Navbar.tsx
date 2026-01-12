@@ -43,6 +43,7 @@ export default function Navbar({ setSidebarOpen, title }: NavbarProps) {
 
   const handleLogout = async () => {
     await logout();
+
     navigate("/login");
   };
 

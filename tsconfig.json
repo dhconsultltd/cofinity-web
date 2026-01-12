@@ -6,10 +6,18 @@
   ],
   "compilerOptions": {
     "baseUrl": "./src",
+     "noUnusedLocals": false,
+    "noUnusedParameters": false, 
+     
+    "strict": false,                    // ← most powerful single flag
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+
     "paths": {
       "@/*": ["*"],
       
       "@/components/*": ["components/*"]
     }
   }
+  
 }

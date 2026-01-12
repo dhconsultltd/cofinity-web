@@ -1,8 +1,14 @@
 // src/context/AuthContext.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { useLocation } from "react-router-dom";  // ← ADD THIS IMPORT
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { useLocation } from "react-router-dom"; // ← ADD THIS IMPORT
 import api from "@/lib/axios";
 import { fetchCsrfToken } from "@/lib/sanctum";
 import { AUTH_API } from "@/constants/api";
@@ -10,6 +16,8 @@ import { ROLES, type Role } from "@/constants/roles";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Tenant } from "@/types/tenant.types";
 import type { User } from "@/types/auth.types";
+import { removeAll } from "@/lib/storageHelper";
+import { toast } from "sonner";
 
 type AuthState = {
   user: User | null;
@@ -25,7 +33,9 @@ type AuthContextValue = AuthState & {
   updateUser: (updates: Partial<User>) => Promise<void>;
 };
 
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined
+);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -35,15 +45,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   });
 
-  const location = useLocation();  // ← ADD THIS
+  const location = useLocation(); // ← ADD THIS
   const queryClient = useQueryClient();
 
   // ← ADD THIS: Guest pages where we DON'T fetch user
   const guestPaths = [
     "/login",
-    "/signup", 
+    "/signup",
     "/verify-email",
-  
+    "/forgot-password",
+    "/",
+    "/index",
+    "/about",
+    "/contact",
+    "/pricing",
+    "/features",
+    "/create-account",
+    "/compliance",
+    "/cookie-policy",
+    "/terms-of-service",
+    "/privacy-policy",
   ];
 
   const isGuestPath = guestPaths.includes(location.pathname);
@@ -52,10 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUser = async () => {
     try {
       const response = await api.get(AUTH_API.ME);
-      const { user,tenants } = response.data;
-
-
-        
+      const { user, tenants } = response.data;
 
       setState({
         user,
@@ -78,8 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
-  //update user 
+  //update user
   const updateUser = async (updates: Partial<User>) => {
     try {
       const response = await api.put(AUTH_API.UPDATE_USER, updates);
@@ -99,18 +116,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await fetchCsrfToken();
     await api.post(AUTH_API.LOGIN, { email, password });
 
-      await fetchUser();  
- 
+    await fetchUser();
+
     queryClient.invalidateQueries();
   };
 
   // Logout
   const logout = async () => {
     try {
+      //show loading
+      toast.loading("Logging out...");
       await api.post(AUTH_API.LOGOUT);
+      await localStorage.removeItem("token");
+      await localStorage.removeItem("user");
+      await removeAll();
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
+      toast.dismiss();
       setState({
         user: null,
         tenants: null,
@@ -118,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: false,
       });
       queryClient.clear();
-      window.location.href = "/login"; // Or use navigate if you prefer
+      // window.location.href = "/login"; // Or use navigate if you prefer
     }
   };
 
@@ -127,7 +150,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (isGuestPath) {
       // On guest pages, don't fetch user, just show loading briefly
       setTimeout(() => {
-        setState(prev => ({ ...prev, isLoading: false, isAuthenticated: false }));
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          isAuthenticated: false,
+        }));
       }, 500);
     } else {
       // On protected pages, fetch user

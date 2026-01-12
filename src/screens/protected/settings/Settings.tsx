@@ -60,9 +60,9 @@ const settingsSchema = z.object({
   address: z.string().optional(),
   registration_number: z.string().optional(),
 
-  auto_renew_plan: z.boolean(),
+  auto_renew: z.boolean(),
 
-  settlement_type: z.enum(["collection", "wallet"]),
+  settlement_type: z.enum(["collection", "wallet", "bank"]),
   sweep_bank_name: z.string().optional(),
   sweep_bank_code: z.string().optional(),
   sweep_account_number: z.string().optional(),
@@ -138,7 +138,7 @@ export default function SettingsPage() {
         address: tenant.address || "",
         registration_number: tenant.registration_number || "",
 
-        settlement_type: tenant.auto_sweep_enabled ? "wallet" : "collection",
+        settlement_type: tenant.settlement_type,
         sweep_bank_name: tenant.sweep_bank_name || "",
         sweep_bank_code: tenant.sweep_bank_code || "",
         sweep_account_number: tenant.sweep_account_number || "",
@@ -152,6 +152,7 @@ export default function SettingsPage() {
         deposit_charge_bearer: tenant.deposit_charge_bearer,
         sms_charge_bearer: tenant?.sms_charge_bearer,
         email_charge_bearer: tenant?.email_charge_bearer,
+        auto_renew: tenant.auto_renew,
 
         sms_enabled: Boolean(tenant.sms_enabled),
         email_enabled: Boolean(tenant.email_enabled),
@@ -438,9 +439,9 @@ export default function SettingsPage() {
                     </div>
 
                     <Switch
-                      checked={watch("auto_renew_plan")}
+                      checked={watch("auto_renew")}
                       onCheckedChange={(checked) =>
-                        setValue("auto_renew_plan", checked)
+                        setValue("auto_renew", checked)
                       }
                     />
                   </div>
@@ -464,7 +465,10 @@ export default function SettingsPage() {
                   <RadioGroup
                     value={settlementType}
                     onValueChange={(v) =>
-                      setValue("settlement_type", v as "collection" | "wallet")
+                      setValue(
+                        "settlement_type",
+                        v as "collection" | "wallet" | "bank"
+                      )
                     }
                   >
                     <div className="flex items-center space-x-2 mt-3">
@@ -473,18 +477,28 @@ export default function SettingsPage() {
                         htmlFor="collection"
                         className="font-normal cursor-pointer"
                       >
-                        Collection Settlement (0.65% fee) – Auto-sweep to wallet
-                        daily at 9PM
+                        Collection Settlement – Auto-sweep to wallet daily at
+                        9PM
                       </Label>
                     </div>
+                    <div className="flex items-center space-x-2 mt-3">
+                      <RadioGroupItem value="bank" id="bank" />
+                      <Label
+                        htmlFor="bank"
+                        className="font-normal cursor-pointer"
+                      >
+                        Direct Bank Settlement – Instant Crediting (Higher
+                        Charges),
+                      </Label>
+                    </div>
+
                     <div className="flex items-center space-x-2 mt-3">
                       <RadioGroupItem value="wallet" id="wallet" />
                       <Label
                         htmlFor="wallet"
                         className="font-normal cursor-pointer"
                       >
-                        Direct Wallet Settlement (1% fee) – Instant, max daily
-                        withdrawal ₦250,000
+                        Leave Funds in wallet account
                       </Label>
                     </div>
                   </RadioGroup>

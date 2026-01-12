@@ -1,6 +1,6 @@
 // app/not-found.tsx
- import { Building2, Home, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Building2, Home, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
@@ -33,17 +33,15 @@ export default function NotFound() {
             </a>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <a href="/cooperative-selection">
-              Select Cooperative
-            </a>
+            <a href="/cooperative-selection">Select Cooperative</a>
           </Button>
         </div>
 
         {/* Support hint */}
         <p className="mt-12 text-sm text-gray-500">
-          Need help?{' '}
+          Need help?{" "}
           <a
-            href="mailto:support@cooperative.com"
+            href="mailto:support@cofinity.ng"
             className="font-medium text-gray-900 hover:underline"
           >
             Contact support

@@ -30,7 +30,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user, refetchUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -94,11 +94,13 @@ const Login: React.FC = () => {
       // Save email for VerifyLogin page
       localStorage.setItem("verifyEmail", data.email);
 
-      toast.success("Login successful, verify Your login to continue");
-
       await remove("isLoginVerified");
       //remove selected cooperative if any
       await remove("selected_cooperative_id");
+
+      //lets repull the user before proceeding
+
+      toast.success("Login successful, verify Your login to continue");
 
       navigate("/verify-login"); // <-- redirect here
     } catch (error: any) {

@@ -123,7 +123,7 @@ export default function ProtectedLayout({
         />
 
         {/* Main content area */}
-        <main className="flex-1 overflow-y-auto px-4 bg-gray-50">
+        <main className="flex-1 overflow-y-auto lg:px-4 md:px-3 sm:px-2 bg-gray-50">
           {children}
         </main>
       </div>

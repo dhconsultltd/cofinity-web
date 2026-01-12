@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Mail, Lock, User, Eye, EyeOff, Loader2, CheckCircle2, Phone } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  Loader2,
+  CheckCircle2,
+  Phone,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,30 +25,29 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import  { fetchCsrfToken } from "@/lib/sanctum";
+import { fetchCsrfToken } from "@/lib/sanctum";
 import { AUTH_API } from "@/constants";
 import api from "@/lib/axios";
 import { useSignupFlowStore } from "@/stores/useSignupFlowStore";
 
 // Zod schema
-const signupSchema = z.object({
-   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  first_name: z.string().min(2, "First name must be at least 2 characters"),
-  last_name: z.string().min(2, "Last name must be at least 2 characters"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+const signupSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    first_name: z.string().min(2, "First name must be at least 2 characters"),
+    last_name: z.string().min(2, "Last name must be at least 2 characters"),
+    phone: z.string().min(10, "Phone number must be at least 10 digits"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
-
-
 const Signup: React.FC = () => {
-
   const { setEmail } = useSignupFlowStore();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -59,9 +67,12 @@ const Signup: React.FC = () => {
   // Password strength indicator (your original logic — untouched)
   const getPasswordStrength = (password: string) => {
     if (password.length === 0) return { strength: 0, label: "", color: "" };
-    if (password.length < 6) return { strength: 25, label: "Weak", color: "bg-red-500" };
-    if (password.length < 10) return { strength: 50, label: "Fair", color: "bg-orange-500" };
-    if (password.length < 12) return { strength: 75, label: "Good", color: "bg-yellow-500" };
+    if (password.length < 6)
+      return { strength: 25, label: "Weak", color: "bg-red-500" };
+    if (password.length < 10)
+      return { strength: 50, label: "Fair", color: "bg-orange-500" };
+    if (password.length < 12)
+      return { strength: 75, label: "Good", color: "bg-yellow-500" };
     return { strength: 100, label: "Strong", color: "bg-green-500" };
   };
 
@@ -75,20 +86,19 @@ const Signup: React.FC = () => {
       await fetchCsrfToken();
 
       // 2. Send signup request
-  await api.post(AUTH_API.REGISTER, {
-      first_name: data.first_name,
-      last_name: data.last_name,
-      phone: data.phone,
-      email: data.email,
-      password: data.password,
-      password_confirmation: data.confirmPassword,
-    });
+      await api.post(AUTH_API.REGISTER, {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        phone: data.phone,
+        email: data.email,
+        password: data.password,
+        password_confirmation: data.confirmPassword,
+      });
       // 3. Success
       toast.success("Account created successfully!", {
         description: "Please check your email to verify your account.",
         duration: 6000,
       });
-
 
       setEmail(data.email);
 
@@ -137,7 +147,8 @@ const Signup: React.FC = () => {
             </h1>
             <div className="w-20 h-1 bg-white rounded-full mb-6"></div>
             <p className="text-xl text-neutral-300 leading-relaxed max-w-md">
-              Start managing your cooperative with powerful tools designed for growth and efficiency.
+              Start managing your cooperative with powerful tools designed for
+              growth and efficiency.
             </p>
           </div>
 
@@ -145,22 +156,30 @@ const Signup: React.FC = () => {
             <div className="flex items-start gap-4">
               <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-white font-medium">Complete Member Management</p>
-                <p className="text-neutral-400 text-sm">Track, verify, and manage all cooperative members</p>
+                <p className="text-white font-medium">
+                  Complete Member Management
+                </p>
+                <p className="text-neutral-400 text-sm">
+                  Track, verify, and manage all cooperative members
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-4">
               <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-white font-medium">Secure Transactions</p>
-                <p className="text-neutral-400 text-sm">Process payments and withdrawals with confidence</p>
+                <p className="text-neutral-400 text-sm">
+                  Process payments and withdrawals with confidence
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-4">
               <CheckCircle2 className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-white font-medium">Real-time Alerts</p>
-                <p className="text-neutral-400 text-sm">Keep members informed via SMS and email</p>
+                <p className="text-neutral-400 text-sm">
+                  Keep members informed via SMS and email
+                </p>
               </div>
             </div>
           </div>
@@ -171,8 +190,12 @@ const Signup: React.FC = () => {
       <div className="flex-1 flex items-center justify-center bg-neutral-50 px-6 py-12">
         <div className="w-full max-w-lg">
           <div className="lg:hidden flex items-center justify-center mb-8">
-            <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center">
-              <span className="text-xl font-bold text-white">C</span>
+            <div className="lg:hidden flex items-center justify-center mb-8">
+              <img
+                className="w-12 h-auto"
+                src="/images/Cofinitylogo12.png"
+                alt=""
+              />
             </div>
           </div>
 
@@ -200,7 +223,9 @@ const Signup: React.FC = () => {
                       {...register("first_name")}
                     />
                     {errors.first_name && (
-                      <p className="text-xs text-red-500 mt-1">{errors.first_name.message}</p>
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.first_name.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -218,11 +243,12 @@ const Signup: React.FC = () => {
                       {...register("last_name")}
                     />
                     {errors.last_name && (
-                      <p className="text-xs text-red-500 mt-1">{errors.last_name.message}</p>
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.last_name.message}
+                      </p>
                     )}
                   </div>
                 </div>
-
 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
@@ -237,11 +263,12 @@ const Signup: React.FC = () => {
                       {...register("phone")}
                     />
                     {errors.phone && (
-                      <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.phone.message}
+                      </p>
                     )}
                   </div>
                 </div>
-                
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -256,7 +283,9 @@ const Signup: React.FC = () => {
                       {...register("email")}
                     />
                     {errors.email && (
-                      <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.email.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -279,27 +308,60 @@ const Signup: React.FC = () => {
                       className="absolute right-3 top-3.5 text-neutral-400 hover:text-neutral-600"
                       disabled={isLoading}
                     >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
                     </button>
                   </div>
 
                   {password && (
                     <div className="space-y-1">
                       <div className="flex gap-1">
-                        <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordStrength.strength >= 25 ? passwordStrength.color : 'bg-neutral-200'}`}></div>
-                        <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordStrength.strength >= 50 ? passwordStrength.color : 'bg-neutral-200'}`}></div>
-                        <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordStrength.strength >= 75 ? passwordStrength.color : 'bg-neutral-200'}`}></div>
-                        <div className={`h-1.5 flex-1 rounded-full transition-colors ${passwordStrength.strength >= 100 ? passwordStrength.color : 'bg-neutral-200'}`}></div>
+                        <div
+                          className={`h-1.5 flex-1 rounded-full transition-colors ${
+                            passwordStrength.strength >= 25
+                              ? passwordStrength.color
+                              : "bg-neutral-200"
+                          }`}
+                        ></div>
+                        <div
+                          className={`h-1.5 flex-1 rounded-full transition-colors ${
+                            passwordStrength.strength >= 50
+                              ? passwordStrength.color
+                              : "bg-neutral-200"
+                          }`}
+                        ></div>
+                        <div
+                          className={`h-1.5 flex-1 rounded-full transition-colors ${
+                            passwordStrength.strength >= 75
+                              ? passwordStrength.color
+                              : "bg-neutral-200"
+                          }`}
+                        ></div>
+                        <div
+                          className={`h-1.5 flex-1 rounded-full transition-colors ${
+                            passwordStrength.strength >= 100
+                              ? passwordStrength.color
+                              : "bg-neutral-200"
+                          }`}
+                        ></div>
                       </div>
                       {passwordStrength.label && (
                         <p className="text-xs text-neutral-500">
-                          Password strength: <span className="font-medium">{passwordStrength.label}</span>
+                          Password strength:{" "}
+                          <span className="font-medium">
+                            {passwordStrength.label}
+                          </span>
                         </p>
                       )}
                     </div>
                   )}
                   {errors.password && (
-                    <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.password.message}
+                    </p>
                   )}
                 </div>
 
@@ -317,7 +379,9 @@ const Signup: React.FC = () => {
                     />
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.confirmPassword.message}
+                    </p>
                   )}
                 </div>
 
@@ -381,9 +445,13 @@ const Signup: React.FC = () => {
 
           <p className="text-center text-xs text-neutral-500 mt-6">
             By creating an account, you agree to our{" "}
-            <button className="underline hover:text-black">Terms of Service</button>
-            {" "}and{" "}
-            <button className="underline hover:text-black">Privacy Policy</button>
+            <button className="underline hover:text-black">
+              Terms of Service
+            </button>{" "}
+            and{" "}
+            <button className="underline hover:text-black">
+              Privacy Policy
+            </button>
           </p>
         </div>
       </div>

@@ -17,6 +17,9 @@ export type Tenant = {
 
   coop_initials: string;
 
+  auto_renew: boolean;
+  settlement_type: "collection" | "wallet" | "bank";
+
   approved_at: string | null;
   registration_number: string | null;
   business_type: string | null;

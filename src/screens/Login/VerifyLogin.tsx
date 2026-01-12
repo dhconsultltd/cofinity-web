@@ -17,11 +17,13 @@ import { useAuth } from "@/hooks/useAuth";
 import api from "@/lib/axios";
 import { saveData } from "@/lib/storageHelper";
 import apiClient from "@/lib/api-client";
+import { useSignupFlowStore } from "@/stores/useSignupFlowStore";
 
 const VerifyLogin: React.FC = () => {
   const navigate = useNavigate();
 
   const { logout, user, tenants, isAuthenticated } = useAuth();
+  const { setEmail } = useSignupFlowStore();
 
   const email = user?.email;
 
@@ -39,7 +41,15 @@ const VerifyLogin: React.FC = () => {
 
       navigate("/login");
     }
-  }, [isAuthenticated, navigate]);
+
+    if (user?.email_verified_at == null) {
+      setEmail(user?.email || "");
+
+      toast.warning("Please verify your email before proceeding");
+      navigate("/verify-email"); // <-- redirect here
+      return;
+    }
+  }, [isAuthenticated, navigate, user]);
 
   // Countdown timer
   useEffect(() => {

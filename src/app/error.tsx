@@ -53,7 +53,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
         <p className="mt-12 text-sm text-gray-500">
           Still having issues?{" "}
           <a
-            href="mailto:support@cooperative.com"
+            href="mailto:support@cofinity.ng"
             className="font-medium text-gray-900 hover:underline"
           >
             Contact support

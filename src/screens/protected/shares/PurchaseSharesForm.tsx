@@ -5,9 +5,22 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
@@ -31,7 +44,9 @@ interface PurchaseSharesFormProps {
   onSuccess: () => void;
 }
 
-export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProps) {
+export default function PurchaseSharesForm({
+  onSuccess,
+}: PurchaseSharesFormProps) {
   const queryClient = useQueryClient();
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<SharesPlan | null>(null);
@@ -51,7 +66,8 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
   // Fetch active shares plans
   const { data: plansResponse } = useQuery({
     queryKey: ["shares-plans"],
-    queryFn: () => apiClient.get(SHARESPLAN_API.LIST).then(res =>  res.data.plans ),
+    queryFn: () =>
+      apiClient.get(SHARESPLAN_API.LIST).then((res) => res.data.plans),
   });
 
   // console.log(plansResponse.data.plans )
@@ -63,7 +79,9 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
     queryKey: ["member-savings-accounts", selectedMember?.id],
     queryFn: () =>
       selectedMember
-        ? apiClient.get(`/api/members/${selectedMember.id}/savings-accounts`).then(res => res.data)
+        ? apiClient
+            .get(`/api/members/${selectedMember.id}/savings-accounts`)
+            .then((res) => res.data)
         : Promise.resolve([]),
     enabled: !!selectedMember,
   });
@@ -83,7 +101,9 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
       apiClient.post(MEMBER_SHARE_ACCOUNT_API.CREATE, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["member-share-accounts"] });
-      queryClient.invalidateQueries({ queryKey: ["member-share-accounts-quota"] });
+      queryClient.invalidateQueries({
+        queryKey: ["member-share-accounts-quota"],
+      });
       toast.success("Shares purchased successfully");
       onSuccess();
       form.reset();
@@ -91,10 +111,9 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
       setSelectedPlan(null);
     },
     onError: (error: any) => {
-
-      console.log(error)
+      console.log(error);
       const message = error?.message || "Failed to purchase shares";
-      toast.error("Error Occurred", {description: message } );
+      toast.error("Error Occurred", { description: message });
     },
   });
 
@@ -107,33 +126,33 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Member Search */}
         {/* Member Search */}
-<FormItem>
-  <FormLabel>Member</FormLabel>
-  <FormControl>
-    <MemberSearchSelect
-      value={selectedMember}
-      onChange={(member) => {
-        setSelectedMember(member);
-        if (member) {
-          form.setValue("member_id", member.id);
-          // Reset dependent fields
-          form.setValue("savings_account_id", undefined);
-          form.setValue("shares_plan_id", undefined);
-          setSelectedPlan(null);
-        } else {
-          form.setValue("member_id", undefined);
-          form.setValue("savings_account_id", undefined);
-          form.setValue("shares_plan_id", undefined);
-          setSelectedPlan(null);
-        }
-        // Trigger validation
-        form.trigger("member_id");
-      }}
-      placeholder="Type member name or ID..."
-    />
-  </FormControl>
-  <FormMessage />
-</FormItem>
+        <FormItem>
+          <FormLabel>Member</FormLabel>
+          <FormControl>
+            <MemberSearchSelect
+              value={selectedMember}
+              onChange={(member) => {
+                setSelectedMember(member);
+                if (member) {
+                  form.setValue("member_id", member.id);
+                  // Reset dependent fields
+                  form.setValue("savings_account_id", undefined);
+                  form.setValue("shares_plan_id", undefined);
+                  setSelectedPlan(null);
+                } else {
+                  form.setValue("member_id", undefined);
+                  form.setValue("savings_account_id", undefined);
+                  form.setValue("shares_plan_id", undefined);
+                  setSelectedPlan(null);
+                }
+                // Trigger validation
+                form.trigger("member_id");
+              }}
+              placeholder="Type member name or ID..."
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
 
         {/* Shares Plan */}
         <FormField
@@ -145,7 +164,7 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
               <Select
                 onValueChange={(value) => {
                   field.onChange(parseInt(value));
-                  const plan = plans.find(p => p.id === parseInt(value));
+                  const plan = plans.find((p) => p.id === parseInt(value));
                   setSelectedPlan(plan || null);
                 }}
                 disabled={!selectedMember}
@@ -155,16 +174,18 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
                     <SelectValue placeholder="Select a shares plan" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent  >
+                <SelectContent>
                   {plans
-                    .filter(plan => plan.is_active)
+                    .filter((plan) => plan.is_active)
                     .map((plan) => (
-                      <SelectItem key={plan.id} value={plan.id.toString()} >
+                      <SelectItem key={plan.id} value={plan.id.toString()}>
                         <div>
                           <p className="font-medium">{plan.name}</p>
                           <p className="text-xs text-gray-500">
-                            ₦{plan.unit_price.toLocaleString()} per unit • Min: {plan.minimum_units}
-                            {plan.maximum_units && ` • Max: ${plan.maximum_units}`}
+                            ₦{plan.unit_price.toLocaleString()} per unit • Min:{" "}
+                            {plan.minimum_units}
+                            {plan.maximum_units &&
+                              ` • Max: ${plan.maximum_units}`}
                           </p>
                         </div>
                       </SelectItem>
@@ -172,7 +193,8 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
                 </SelectContent>
               </Select>
               <FormDescription>
-                Only active plans are shown. Default plan highlighted if available.
+                Only active plans are shown. Default plan highlighted if
+                available.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -192,11 +214,13 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
               >
                 <FormControl>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={
-                      savingsAccounts.length === 0
-                        ? "No savings accounts found"
-                        : "Select account to debit"
-                    } />
+                    <SelectValue
+                      placeholder={
+                        savingsAccounts.length === 0
+                          ? "No savings accounts found"
+                          : "Select account to debit"
+                      }
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -205,7 +229,8 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
                       <div>
                         <p className="font-medium">{acc.account_number}</p>
                         <p className="text-xs text-gray-500">
-                          Balance: ₦{parseFloat(acc.balance.toString()).toLocaleString()}
+                          Balance: ₦
+                          {parseFloat(acc.balance.toString()).toLocaleString()}
                         </p>
                       </div>
                     </SelectItem>
@@ -227,7 +252,9 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
               <FormControl>
                 <Input
                   type="number"
-                  step={selectedPlan?.allow_partial_purchase ? "0.00000001" : "1"}
+                  step={
+                    selectedPlan?.allow_partial_purchase ? "0.00000001" : "1"
+                  }
                   min={selectedPlan?.minimum_units || 1}
                   placeholder="e.g., 50"
                   {...field}
@@ -235,8 +262,10 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
               </FormControl>
               {selectedPlan && (
                 <FormDescription>
-                  Min: {selectedPlan.minimum_units} unit{selectedPlan.minimum_units > 1 ? "s" : ""}{' '}
-                  {selectedPlan.maximum_units && `• Max: ${selectedPlan.maximum_units}`}{' '}
+                  Min: {selectedPlan.minimum_units} unit
+                  {selectedPlan.minimum_units > 1 ? "s" : ""}{" "}
+                  {selectedPlan.maximum_units &&
+                    `• Max: ${selectedPlan.maximum_units}`}{" "}
                   {!selectedPlan.allow_partial_purchase && "• Whole units only"}
                 </FormDescription>
               )}
@@ -251,10 +280,16 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
             <CardContent className="pt-6">
               <div className="flex justify-between text-lg font-semibold">
                 <span>Total Cost</span>
-                <span>₦{totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span>
+                  ₦
+                  {totalCost.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
               </div>
               <p className="text-sm text-gray-600 mt-2">
-                {form.watch("units")} unit{form.watch("units") !== 1 ? "s" : ""} × ₦{selectedPlan.unit_price.toLocaleString()} per unit
+                {form.watch("units")} unit{form.watch("units") !== 1 ? "s" : ""}{" "}
+                × ₦{selectedPlan.unit_price.toLocaleString()} per unit
               </p>
             </CardContent>
           </Card>
@@ -268,7 +303,10 @@ export default function PurchaseSharesForm({ onSuccess }: PurchaseSharesFormProp
             <FormItem>
               <FormLabel>Description (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Monthly share contribution" {...field} />
+                <Input
+                  placeholder="e.g., Monthly share contribution"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

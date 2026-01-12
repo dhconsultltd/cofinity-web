@@ -13,6 +13,7 @@ import {
   Shield,
   LogOut,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -22,6 +23,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const menuItems = [
     { name: "Dashboard", icon: <Home size={18} />, href: "/dashboard" },
@@ -58,12 +60,8 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     { name: "Settings", icon: <Settings size={18} />, href: "/settings" },
   ];
 
-  const handleLogout = () => {
-    // Clear authentication/session data
-    localStorage.removeItem("token"); // example: remove JWT token
-    // Optionally, clear other user data if needed
-    localStorage.removeItem("user");
-
+  const handleLogout = async () => {
+    await logout();
     // Navigate to login page
     navigate("/login", { replace: true });
   };

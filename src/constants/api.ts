@@ -3,8 +3,6 @@
 // Use Vite's `import.meta.env` in the browser instead of `process.env` (Next.js style).
 const env = import.meta.env as Record<string, string | undefined>;
 
-console.log(env);
-
 export const API_BASE = env.VITE_API_URL ?? env.NEXT_PUBLIC_API_URL ?? "";
 
 // Sanctum endpoints
