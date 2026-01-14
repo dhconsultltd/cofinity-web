@@ -180,9 +180,12 @@ const Login: React.FC = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-neutral-50 px-6 py-12">
+      <div className="flex-1 flex items-center justify-center bg-neutral-50 px-3 py-12">
         <div className="w-full max-w-lg">
-          <div className="lg:hidden flex items-center justify-center mb-8">
+          <div
+            className="lg:hidden flex items-center justify-center mb-8"
+            onClick={() => navigate("/index")}
+          >
             <img
               className="w-12 h-auto"
               src="/images/Cofinitylogo12.png"
@@ -190,7 +193,7 @@ const Login: React.FC = () => {
             />
           </div>
 
-          <Card className="border-neutral-100 shadow-none">
+          <Card className="border-neutral-100 shadow-none   p-0 py-8">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold tracking-tight">
                 Welcome back
@@ -324,7 +327,6 @@ const Login: React.FC = () => {
               </p>
             </CardFooter>
           </Card>
-
           <p className="text-center text-xs text-neutral-500 mt-6">
             By signing in, you agree to our{" "}
             <button className="underline hover:text-black">

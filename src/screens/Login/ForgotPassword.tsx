@@ -129,8 +129,13 @@ const ForgotPassword = () => {
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
           <div className="mb-12">
             <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6">
-              <span className="text-2xl font-bold text-black">C</span>
+              <img
+                className="w-12 h-auto"
+                src="/images/Cofinitylogo12.png"
+                alt=""
+              />
             </div>
+
             <h1 className="text-5xl font-bold mb-4 tracking-tight">Cofinity</h1>
             <div className="w-20 h-1 bg-white rounded-full mb-6"></div>
             <p className="text-xl text-neutral-300 leading-relaxed max-w-md">
@@ -164,11 +169,17 @@ const ForgotPassword = () => {
 
       <div className="flex-1 flex items-center justify-center bg-neutral-50 px-6 py-12">
         <div className="w-full max-w-lg">
-          <div className="lg:hidden flex items-center justify-center mb-8">
-            <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center">
-              <span className="text-xl font-bold text-white">C</span>
-            </div>
+          <div
+            className="lg:hidden flex items-center justify-center mb-8"
+            onClick={() => navigate("/index")}
+          >
+            <img
+              className="w-12 h-auto"
+              src="/images/Cofinitylogo12.png"
+              alt=""
+            />
           </div>
+
           <Card className="w-full max-w-md border-neutral-100 shadow-none">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-bold tracking-tight">

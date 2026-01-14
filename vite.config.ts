@@ -72,22 +72,22 @@ export default defineConfig({
     }),
   ],
 
-  // server: {
-  //   proxy: {
-  //     "/sanctum": {
-  //       target: "https://cofinity.beejett.com",
-  //       changeOrigin: true,
-  //       secure: false,
-  //     },
-  //     "/api": {
-  //       target: "https://cofinity.beejett.com",
-  //       changeOrigin: true,
-  //       secure: false,
-  //     },
-  //   },
+  server: {
+    proxy: {
+      "/sanctum": {
+        target: "https://app.cofinity.ng",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api": {
+        target: "https://app.cofinity.ng",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
 
-  //   host: true,
-  // },
+    host: true,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

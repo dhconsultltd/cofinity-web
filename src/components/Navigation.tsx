@@ -134,8 +134,10 @@ const Navigation: React.FC = () => {
                   </a>
                 ))}
                 <a
-                  href="#"
-                  onClick={closeMobileMenu}
+                  onClick={() => {
+                    navigate("/login");
+                    closeMobileMenu();
+                  }}
                   className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-linear-to-r bg-black text-white font-medium hover:shadow-lg transition-all duration-300 mt-4"
                 >
                   Login
